@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>محل الفساتين</title>
+<meta name="theme-color" content="#6E3459">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="محل الفساتين">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+html,body{margin:0;height:100%;background:#F7F3F0;color:#2A1F26;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
+#f{position:fixed;inset:0;width:100%;height:100%;border:0}
+#splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#F7F3F0;z-index:2;transition:opacity .3s}
+#splash img{width:96px;height:96px;border-radius:24px}
+#splash b{font-size:20px}
+#splash span{font-size:14px;color:#6B5E66}
+.bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;display:none;background:#2A1F26;color:#fff;border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.7}
+.bar a,.bar .go{display:block;width:100%;box-sizing:border-box;margin-top:10px;background:#6E3459;color:#fff;text-align:center;text-decoration:none;border:0;border-radius:10px;padding:12px;font-weight:bold;font-size:15px;font-family:inherit;cursor:pointer}
+.bar .x{position:absolute;top:6px;left:8px;width:40px;height:40px;background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="splash"><img src="icon-192.png" alt=""><b>محل الفساتين</b><span>جاري التحميل...</span></div>
+<iframe id="f" title="محل الفساتين" allow="camera; clipboard-write" src="https://script.google.com/macros/s/AKfycbzB_uDwwfPeOjWIgrdqkRIfQNGCqpb-Ylq33Nb44WQKgwy3w6LbuQG1uBQ4QWsVPIIM/exec"></iframe>
+<div id="help" class="bar" role="alert"><button class="x" aria-label="إغلاق" onclick="this.parentNode.style.display='none'">×</button>التطبيق بياخد وقت يفتح. اتأكد إن النت شغال وجرب تقفل التطبيق وتفتحه تاني، أو افتحه من المتصفح.<a href="https://script.google.com/macros/s/AKfycbzB_uDwwfPeOjWIgrdqkRIfQNGCqpb-Ylq33Nb44WQKgwy3w6LbuQG1uBQ4QWsVPIIM/exec" target="_blank" rel="noopener">افتح في المتصفح</a></div>
+<div id="inst" class="bar"><button class="x" aria-label="إغلاق" onclick="closeInst()">×</button><span id="instTxt">نزّل التطبيق على موبايلك علشان يفتح بأيقونة زي أي تطبيق.</span><button class="go" id="instBtn" onclick="doInstall()">تثبيت التطبيق</button></div>
+<script>
+var ready=false,deferred=null;
+function hideSplash(){var s=document.getElementById('splash');if(!s)return;s.style.opacity=0;setTimeout(function(){s.remove()},300)}
+window.addEventListener('message',function(e){if(e.data==='shop-ready'){ready=true;hideSplash();document.getElementById('help').style.display='none'}});
+document.getElementById('f').addEventListener('load',function(){setTimeout(hideSplash,1500)});
+setTimeout(function(){if(!ready){hideSplash();document.getElementById('help').style.display='block'}},20000);
+var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+var dismissed=false;try{dismissed=localStorage.getItem('instClosed')==='1'}catch(e){}
+function closeInst(){document.getElementById('inst').style.display='none';try{localStorage.setItem('instClosed','1')}catch(e){}}
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;if(!standalone&&!dismissed)document.getElementById('inst').style.display='block'});
+function doInstall(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;document.getElementById('inst').style.display='none'})}
+window.addEventListener('appinstalled',function(){document.getElementById('inst').style.display='none'});
+if(!standalone&&!dismissed&&/iphone|ipad|ipod/i.test(navigator.userAgent)){setTimeout(function(){document.getElementById('instTxt').textContent='علشان تنزّل التطبيق على الآيفون: دوس زرار المشاركة (المربع اللي فيه سهم) تحت، وبعدين «إضافة إلى الشاشة الرئيسية» Add to Home Screen.';document.getElementById('instBtn').style.display='none';document.getElementById('inst').style.display='block'},4000)}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
+</script>
+</body>
+</html>
