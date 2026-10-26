@@ -11,37 +11,369 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="محل الفساتين">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+/* بيكلم السيستم على جوجل شيت مباشرة (من غير حسابات جوجل اللي على الموبايل) */
+var SHOP_API='https://script.google.com/macros/s/AKfycbzB_uDwwfPeOjWIgrdqkRIfQNGCqpb-Ylq33Nb44WQKgwy3w6LbuQG1uBQ4QWsVPIIM/exec';
+window.google={script:{get run(){var ok=null,bad=null,px;var o={withSuccessHandler:function(f){ok=f;return px},withFailureHandler:function(f){bad=f;return px}};
+px=new Proxy(o,{get:function(t,k){if(k in t)return t[k];return function(){var args=Array.prototype.slice.call(arguments);
+var tries=0;(function go(){fetch(SHOP_API,{method:'POST',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:k,args:args})})
+.then(function(r){if(!r.ok)throw new Error('net '+r.status);return r.json()})
+.then(function(j){if(j&&j.err!==undefined){if(bad)bad(new Error(j.err))}else if(ok)ok(j?j.ok:null)})
+.catch(function(e){if(tries++<1)return setTimeout(go,1200);if(bad)bad(new Error('مفيش اتصال بالسيستم. اتأكد من النت وجرب تاني.'))})})()}}});return px}}};
+</script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-html,body{margin:0;height:100%;background:#F7F3F0;color:#2A1F26;font-family:Tahoma,Arial,sans-serif;overflow:hidden}
-#f{position:fixed;inset:0;width:100%;height:100%;border:0}
-#splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#F7F3F0;z-index:2;transition:opacity .3s}
-#splash img{width:96px;height:96px;border-radius:24px}
-#splash b{font-size:20px}
-#splash span{font-size:14px;color:#6B5E66}
-.bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;display:none;background:#2A1F26;color:#fff;border-radius:14px;padding:14px 16px;font-size:15px;line-height:1.7}
-.bar a,.bar .go{display:block;width:100%;box-sizing:border-box;margin-top:10px;background:#6E3459;color:#fff;text-align:center;text-decoration:none;border:0;border-radius:10px;padding:12px;font-weight:bold;font-size:15px;font-family:inherit;cursor:pointer}
-.bar .x{position:absolute;top:6px;left:8px;width:40px;height:40px;background:none;border:0;color:#fff;font-size:22px;cursor:pointer}
+:root{--ac:#6E3459;--ac2:#F3E8EF;--bg:#F7F4F2;--line:#E6DDE2;--line2:#F0EAEE;--ink:#241C21;--mute:#6B5F66;--ink2:#40363C;
+--red:#8E3A32;--redbg:#F6E3DF;--amb:#7A5212;--ambbg:#FBEFD9;--grn:#1F5C34;--grnbg:#E1F0E6;--blu:#1D4C80;--blubg:#DCE8F7;--org:#8A4A12;--orgbg:#FCE3CF;--gry:#4A5456;--grybg:#ECEAE6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;font-size:15px;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:600px;margin:0 auto;padding:18px 16px 120px}
+h1{margin:0;font-size:22px;font-weight:700}h2{margin:0;font-size:17px;font-weight:700}
+.sub{font-size:13px;color:var(--mute)}
+.row{display:flex;align-items:center;gap:12px}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.col{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.stack{display:flex;flex-direction:column;gap:10px}
+.sec{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+button.card{width:100%;text-align:right;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.stat{border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);background:#fff;text-align:right;cursor:pointer}
+.stat b{font-size:24px}.stat span{font-size:13px;color:var(--mute)}
+.stat.pri{background:var(--ac);border-color:var(--ac);color:#fff}.stat.pri span{color:#F3E8EF}
+.stat.bad{background:var(--redbg);border-color:var(--redbg)}.stat.bad b,.stat.bad span{color:var(--red)}
+.search{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 6px 0 14px;height:50px;margin-top:14px}
+.search input{border:0;outline:0;background:transparent;flex:1;font-size:15px;min-width:0;height:100%}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.tag{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap;background:var(--grybg);color:var(--gry)}
+.t-grn{background:var(--grnbg);color:var(--grn)}.t-amb{background:var(--ambbg);color:var(--amb)}.t-red{background:var(--redbg);color:var(--red)}
+.t-blu{background:var(--blubg);color:var(--blu)}.t-org{background:var(--orgbg);color:var(--org)}.t-ac{background:var(--ac2);color:var(--ac)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;font-weight:700;color:var(--ac);direction:ltr;unicode-bidi:isolate}
+.av{width:46px;height:46px;border-radius:12px;background:var(--ac2);color:var(--ac);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;direction:ltr}
+.ibtn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;text-decoration:none;color:var(--ink)}
+.ibtn.round{border-radius:50%;background:#fff}
+.btn{min-height:50px;border-radius:14px;border:1px solid var(--line);background:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--ink);cursor:pointer;padding:0 12px;text-align:center}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.btn.wa{background:#1E7E46;border-color:#1E7E46;color:#fff}
+.btn.danger{color:var(--red);border-color:#E9C9C3}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.alert{display:flex;gap:10px;align-items:flex-start;background:var(--redbg);border-radius:14px;padding:12px 14px;color:#6E2C26;font-size:14px}
+.ok{display:flex;gap:10px;align-items:flex-start;background:var(--grnbg);border-radius:14px;padding:12px 14px;color:var(--grn);font-size:14px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:14px}.kv:last-child{border-bottom:0}
+.kv b{font-weight:700}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700}
+.f input,.f select,.f textarea{min-height:46px;border-radius:12px;border:1px solid #D8CDD3;background:var(--bg);padding:0 12px;font-size:15px;font-weight:400;width:100%}
+.f textarea{padding:10px 12px;resize:vertical}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:#ECE5E9;border-radius:12px;padding:4px;gap:4px}
+.seg button{height:42px;border-radius:9px;border:0;background:transparent;font-weight:600;color:#4A4046;cursor:pointer}
+.seg button.on{background:#fff;color:var(--ink)}
+.crow{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line2)}.crow:last-child{border-bottom:0}
+.lnk{background:none;border:0;padding:0;text-align:right;cursor:pointer;color:inherit}
+nav.bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:6px 6px calc(10px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));z-index:10}
+nav.bar button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:52px;justify-content:center;font-size:11.5px;color:var(--mute);cursor:pointer}
+nav.bar button.on{color:var(--ac);font-weight:700}
+.fab{position:fixed;left:18px;bottom:90px;height:56px;padding:0 20px;border-radius:28px;background:var(--ac);color:#fff;border:0;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 6px 18px rgba(36,28,33,.25);z-index:11;cursor:pointer}
+.empty{text-align:center;color:var(--mute);padding:22px 8px;font-size:14px}
+.money{font-variant-numeric:tabular-nums}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#241C21;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;display:none;z-index:40;max-width:90%;text-align:center}
+#busy{position:fixed;inset:0;background:rgba(247,244,242,.75);display:none;align-items:center;justify-content:center;z-index:30;font-weight:700;color:var(--ac)}
+.sheet{position:fixed;inset:0;background:rgba(36,28,33,.4);z-index:25;display:flex;align-items:flex-end;justify-content:center}
+.sheet .panel{background:#fff;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));width:100%;max-width:600px;max-height:88vh;overflow:auto}
+.pick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.pick button{display:flex;width:100%;text-align:right;gap:10px;align-items:center;padding:10px 12px;border:0;border-bottom:1px solid var(--line2);background:#fff;cursor:pointer}
+.pick button:last-child{border-bottom:0}
 </style>
 </head>
 <body>
-<div id="splash"><img src="icon-192.png" alt=""><b>محل الفساتين</b><span>جاري التحميل...</span></div>
-<iframe id="f" title="محل الفساتين" allow="camera; clipboard-write" src="https://script.google.com/macros/s/AKfycbzB_uDwwfPeOjWIgrdqkRIfQNGCqpb-Ylq33Nb44WQKgwy3w6LbuQG1uBQ4QWsVPIIM/exec"></iframe>
-<div id="help" class="bar" role="alert"><button class="x" aria-label="إغلاق" onclick="this.parentNode.style.display='none'">×</button>التطبيق بياخد وقت يفتح. اتأكد إن النت شغال وجرب تقفل التطبيق وتفتحه تاني، أو افتحه من المتصفح.<a href="https://script.google.com/macros/s/AKfycbzB_uDwwfPeOjWIgrdqkRIfQNGCqpb-Ylq33Nb44WQKgwy3w6LbuQG1uBQ4QWsVPIIM/exec" target="_blank" rel="noopener">افتح في المتصفح</a></div>
-<div id="inst" class="bar"><button class="x" aria-label="إغلاق" onclick="closeInst()">×</button><span id="instTxt">نزّل التطبيق على موبايلك علشان يفتح بأيقونة زي أي تطبيق.</span><button class="go" id="instBtn" onclick="doInstall()">تثبيت التطبيق</button></div>
+<div id="app" class="wrap"><div class="empty">جاري التحميل...</div></div>
+<button class="fab" id="fab" onclick="startBooking()"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>حجز جديد</button>
+<nav class="bar" id="nav"></nav>
+<div id="sheetHost"></div>
+<div id="toast" role="status"></div><div id="busy">جاري الحفظ...</div>
+<input type="file" id="scanFile" accept="image/*" capture="environment" style="display:none" onchange="scanPicked(this)">
 <script>
-var ready=false,deferred=null;
-function hideSplash(){var s=document.getElementById('splash');if(!s)return;s.style.opacity=0;setTimeout(function(){s.remove()},300)}
-window.addEventListener('message',function(e){if(e.data==='shop-ready'){ready=true;hideSplash();document.getElementById('help').style.display='none'}});
-document.getElementById('f').addEventListener('load',function(){setTimeout(hideSplash,1500)});
-setTimeout(function(){if(!ready){hideSplash();document.getElementById('help').style.display='block'}},20000);
-var standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-var dismissed=false;try{dismissed=localStorage.getItem('instClosed')==='1'}catch(e){}
-function closeInst(){document.getElementById('inst').style.display='none';try{localStorage.setItem('instClosed','1')}catch(e){}}
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;if(!standalone&&!dismissed)document.getElementById('inst').style.display='block'});
-function doInstall(){if(!deferred)return;deferred.prompt();deferred.userChoice.then(function(){deferred=null;document.getElementById('inst').style.display='none'})}
+var TTP=null;try{if(window.trustedTypes&&trustedTypes.createPolicy)TTP=trustedTypes.createPolicy('shop',{createHTML:function(s){return s}})}catch(e){}
+function setH(el,s){if(el)el.innerHTML=TTP?TTP.createHTML(s):s}
+window.onerror=function(msg,s,l,c){var a=document.getElementById('app');if(!a)return;var d=document.createElement('div');d.className='alert';d.style.marginBottom='12px';d.textContent='خطأ: '+msg+' ('+l+':'+c+')';a.insertBefore(d,a.firstChild)};
+
+var D=null,V={s:'home'},F={q:'',f:'up'},FD={q:'',f:'all'},FC={q:''},NB=null,SCAN_TO='dress',MONTH=null,TOKEN=null;
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
+TOKEN=lsGet('shop_token');
+function admin(){return D&&D.me&&D.me.role==='مدير'}
+var ST={BOOKED:'محجوز',OUT:'تم التسليم',BACK:'تم الإرجاع',CANCEL:'ملغي'};
+var IC={home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',dress:'<path d="M9 3h6l-1 4 4 14H6l4-14z"/><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"/>',cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',users:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',money:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',back:'<path d="m9 6 6 6-6 6"/>',phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',scan:'<path d="M3 7V4h3M17 4h4v3M21 17v3h-4M7 20H4v-3"/><path d="M7 8v8M10 8v8M13 8v8M17 8v8"/>',plus:'<path d="M12 5v14M5 12h14"/>',refresh:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',warn:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',x:'<path d="M18 6 6 18M6 6l12 12"/>',cog:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>'};
+function ic(n,s,c){s=s||20;return '<svg aria-hidden="true" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="'+(c||'currentColor')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+IC[n]+'</svg>'}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function $(id){return document.getElementById(id)}
+function money(n){n=Math.round(Number(n)||0);return n.toLocaleString('en-US')+' ج'}
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(function(){e.style.display='none'},3200)}
+function busy(on,t){var b=$('busy');b.textContent=t||'جاري الحفظ...';b.style.display=on?'flex':'none'}
+function run(fn,args,ok,msg){busy(true,msg);args=args||[];if(fn!=='appLogin')args=[TOKEN].concat(args);var r=google.script.run.withSuccessHandler(function(res){busy(false);if(res&&res.dresses)D=res;else if(res&&res.data)D=res.data;if(ok)ok(res)}).withFailureHandler(function(e){busy(false);var t=(e&&e.message||String(e)).replace(/^Exception: /,'').replace(/^Error: /,'');if(t.indexOf('AUTH')===0){logoutLocal();toast('سجّل دخول تاني');return}toast(t);if(!D&&TOKEN)setH($('app'),'<div class="alert">'+esc(t)+'</div><button class="btn pri" style="width:100%;margin-top:12px" onclick="load()">جرّب تاني</button>')});r[fn].apply(r,args)}
+function logoutLocal(){TOKEN=null;lsSet('shop_token',null);D=null;V={s:'home'};showLogin()}
+function doLogout(){var t=TOKEN;logoutLocal();if(t)google.script.run.appLogout(t)}
+function showLogin(){setH($('nav'),'');$('fab').style.display='none';setH($('app'),'<div style="min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:18px"><div style="text-align:center"><div class="av" style="margin:0 auto 12px;width:64px;height:64px;font-size:26px">'+ic('dress',30)+'</div><h1>تسجيل الدخول</h1><p class="sub">اكتب الرقم السري بتاعك (6 أرقام)</p></div><form class="card stack" onsubmit="doLogin(event)"><label class="f">الرقم السري<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" style="text-align:center;font-size:24px;letter-spacing:8px" required></label><button class="btn pri" type="submit">دخول</button></form><p class="sub" style="text-align:center">الرقم السري بيديهولك مدير المحل</p></div>');setTimeout(function(){var p=$('pin');if(p)p.focus()},80)}
+function doLogin(e){e.preventDefault();var p=$('pin').value.trim();run('appLogin',[p],function(r){TOKEN=r.token;lsSet('shop_token',TOKEN);load()},'جاري الدخول...')}
+function load(){if(!TOKEN){showLogin();try{window.top.postMessage('shop-ready','*')}catch(e){}return}run('appData',[],function(){if(!MONTH)MONTH=D.today.slice(0,7);draw();try{window.top.postMessage('shop-ready','*')}catch(e){}},'جاري التحميل...')}
+function go(s,x){V={s:s};if(x)for(var k in x)V[k]=x[k];closeSheet();draw();window.scrollTo(0,0)}
+
+/* ---------- تواريخ ---------- */
+function pd(s){var p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function addD(s,n){var d=pd(s);d.setDate(d.getDate()+n);return fd(d)}
+function diffD(a,b){return Math.round((pd(b)-pd(a))/864e5)}
+var DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function nice(s){if(!s)return '—';if(s===D.today)return 'النهارده';if(s===addD(D.today,1))return 'بكرة';if(s===addD(D.today,-1))return 'امبارح';var d=pd(s);return DAYS[d.getDay()]+' '+d.getDate()+'/'+(d.getMonth()+1)}
+
+/* ---------- منطق ---------- */
+function dressBy(c){for(var i=0;i<D.dresses.length;i++)if(D.dresses[i].code===c)return D.dresses[i];return null}
+function custBy(c){for(var i=0;i<D.customers.length;i++)if(D.customers[i].code===c)return D.customers[i];return null}
+function bookBy(c){for(var i=0;i<D.bookings.length;i++)if(D.bookings[i].code===c)return D.bookings[i];return null}
+function active(b){return b.status!==ST.CANCEL&&b.status!==ST.BACK}
+function conflicts(dress,from,to,excl){var buf=D.settings.buffer||0,f=addD(from,-buf),t=addD(to,buf);return D.bookings.filter(function(b){return b.dress===dress&&b.code!==excl&&active(b)&&b.pickup&&b.ret&&b.pickup<=t&&b.ret>=f})}
+function isLate(b){return b.status===ST.OUT&&b.ret<D.today}
+function dressState(d){
+ var out=D.bookings.filter(function(b){return b.dress===d.code&&b.status===ST.OUT})[0];
+ if(out)return {t:isLate(out)?'متأخر عند العميلة':'مع العميلة',c:isLate(out)?'t-red':'t-org',k:'out'};
+ if(d.tech&&d.tech!=='جاهز')return {t:d.tech,c:d.tech==='خارج الخدمة'?'t-red':'',k:'tech'};
+ var today=D.bookings.filter(function(b){return b.dress===d.code&&b.status===ST.BOOKED&&b.pickup<=D.today&&b.ret>=D.today})[0];
+ if(today)return {t:'محجوز النهارده',c:'t-blu',k:'booked'};
+ var nx=nextBooking(d.code);
+ if(nx)return {t:'متاح · محجوز '+nice(nx.pickup),c:'t-grn',k:'free'};
+ return {t:'متاح',c:'t-grn',k:'free'}}
+function nextBooking(code){var l=D.bookings.filter(function(b){return b.dress===code&&b.status===ST.BOOKED&&b.pickup>=D.today}).sort(function(a,b){return a.pickup<b.pickup?-1:1});return l[0]||null}
+function bookTag(b){if(b.status===ST.CANCEL)return '<span class="tag">ملغي</span>';if(isLate(b))return '<span class="tag t-red">متأخر '+diffD(b.ret,D.today)+' يوم</span>';if(b.status===ST.OUT)return '<span class="tag t-org">مع العميلة</span>';if(b.status===ST.BACK)return '<span class="tag t-grn">رجع</span>';if(b.pickup===D.today)return '<span class="tag t-blu">استلام النهارده</span>';return '<span class="tag t-ac">محجوز</span>'}
+function payTag(b){if(b.status===ST.CANCEL)return '';if(b.remaining<=0)return '<span class="tag t-grn">مدفوع</span>';if(b.paid>0)return '<span class="tag t-amb">باقي '+money(b.remaining)+'</span>';return '<span class="tag t-red">لم تدفع</span>'}
+function waNum(p){p=String(p||'').replace(/\D/g,'');if(!p)return '';if(p.indexOf('00')===0)p=p.slice(2);if(p.charAt(0)==='0')p='20'+p.slice(1);return p}
+function waLink(phone,msg){var n=waNum(phone);return n?'https://api.whatsapp.com/send?phone='+n+'&text='+encodeURIComponent(msg||''):''}
+function monthOf(s){return s?s.slice(0,7):''}
+
+/* ---------- الرسم ---------- */
+function hdr(t,back,extra){return '<div class="between"><button class="ibtn round" aria-label="رجوع" onclick="'+back+'">'+ic('back')+'</button><b style="font-size:16px">'+t+'</b>'+(extra||'<span style="width:44px"></span>')+'</div>'}
+function sec(t,b,link){return '<section class="sec"><div class="between"><h2>'+t+'</h2>'+(link||'')+'</div>'+b+'</section>'}
+function draw(){if(!D)return;var s=V.s,h='';
+ if(s==='home')h=vHome();else if(s==='bookings')h=vBookings();else if(s==='booking')h=vBooking();else if(s==='dresses')h=vDresses();else if(s==='dress')h=vDress();else if(s==='dressForm')h=vDressForm();else if(s==='customers')h=vCustomers();else if(s==='customer')h=vCustomer();else if(s==='custForm')h=vCustForm();else if(s==='money')h=admin()?vMoney():vMe();else if(s==='newBooking')h=vNewBooking();else if(s==='editBooking')h=vEditBooking();else if(s==='settings')h=vSettings();else if(s==='userForm')h=vUserForm();
+ setH($('app'),h);
+ var tab={home:'home',bookings:'bookings',booking:'bookings',newBooking:'bookings',editBooking:'bookings',dresses:'dresses',dress:'dresses',dressForm:'dresses',customers:'customers',customer:'customers',custForm:'customers',money:'money',settings:'money',userForm:'money'}[s];
+ setH($('nav'),[['home','الرئيسية','home'],['bookings','الحجوزات','cal'],['dresses','الفساتين','dress'],['customers','العملاء','users'],(admin()?['money','الإدارة','money']:['money','حسابي','users'])].map(function(t){return '<button class="'+(t[0]===tab?'on':'')+'" onclick="go(\''+t[0]+'\')">'+ic(t[2],22)+t[1]+'</button>'}).join(''));
+ $('fab').style.display=(s==='home'||s==='bookings'||s==='dresses')?'flex':'none';
+ if(s==='bookings')listBookings();if(s==='dresses')listDresses();if(s==='customers')listCustomers();if(s==='newBooking')nbRefresh()}
+
+function bkRow(b,sub){return '<button class="card row" onclick="go(\'booking\',{c:\''+b.code+'\'})"><div class="av">'+esc(b.dress.replace('DR-',''))+'</div><div class="col"><div class="row" style="gap:8px"><b>'+esc(b.name||'—')+'</b><span class="code">'+esc(b.code)+'</span></div><span class="sub">'+esc(b.dressDesc)+'</span><span class="sub">'+(sub||('استلام '+nice(b.pickup)+' · إرجاع '+nice(b.ret)))+'</span></div><div class="stack" style="gap:6px;align-items:flex-end">'+bookTag(b)+payTag(b)+'</div></button>'}
+
+function vHome(){var B=D.bookings;
+ var pick=B.filter(function(b){return b.status===ST.BOOKED&&b.pickup>=D.today&&b.pickup<=addD(D.today,7)}).sort(function(a,b){return a.pickup<b.pickup?-1:1});
+ var rets=B.filter(function(b){return b.status===ST.OUT}).sort(function(a,b){return a.ret<b.ret?-1:1});
+ var late=rets.filter(isLate);
+ var missed=B.filter(function(b){return b.status===ST.BOOKED&&b.pickup<D.today});
+ var recv=B.reduce(function(s,b){return s+(b.status!==ST.CANCEL&&b.remaining>0?b.remaining:0)},0);
+ var mon=D.today.slice(0,7),col=D.payments.filter(function(p){return monthOf(p.date)===mon}).reduce(function(s,p){return s+p.net},0);
+ var free=D.dresses.filter(function(d){return dressState(d).k==='free'}).length;
+ var h='<div class="between"><div class="col"><span class="sub">'+esc(D.dayName)+' '+esc(D.today)+' · '+esc(D.me.name)+'</span><h1>'+esc(D.settings.shop)+'</h1></div><button class="ibtn round" aria-label="تحديث البيانات" onclick="load()">'+ic('refresh')+'</button></div>';
+ h+='<div class="search" style="cursor:text" onclick="go(\'dresses\');setTimeout(function(){var i=$(\'dq\');if(i)i.focus()},60)">'+ic('search',18)+'<span class="sub" style="flex:1">دوّر على فستان بالكود أو الوصف</span><button class="ibtn" style="border:0" aria-label="مسح باركود" onclick="event.stopPropagation();scan(\'dress\')">'+ic('scan')+'</button></div>';
+ h+='<div class="stats"><button class="stat pri" onclick="F.f=\'up\';go(\'bookings\')"><b>'+pick.filter(function(b){return b.pickup===D.today}).length+'</b><span>استلامات النهارده</span></button><button class="stat" onclick="F.f=\'out\';go(\'bookings\')"><b>'+rets.filter(function(b){return b.ret===D.today}).length+'</b><span>إرجاعات النهارده</span></button><button class="stat'+(late.length?' bad':'')+'" onclick="F.f=\'late\';go(\'bookings\')"><b>'+late.length+'</b><span>متأخرة عند العملاء</span></button><button class="stat" onclick="F.f=\'due\';go(\'bookings\')"><b class="money">'+money(recv)+'</b><span>فلوس لسه ماتحصلتش</span></button>'+(admin()?'<button class="stat" onclick="go(\'money\')"><b class="money">'+money(col)+'</b><span>المحصّل الشهر ده</span></button>':'')+'<button class="stat" onclick="FD.f=\'free\';go(\'dresses\')"><b>'+free+' / '+D.dresses.length+'</b><span>فساتين متاحة</span></button></div>';
+ if(missed.length)h+='<div class="alert" style="margin-top:14px">'+ic('warn',20,'#8E3A32')+'<div class="col"><b>'+missed.length+' حجز فات ميعاد استلامه ولسه ماتسجلش التسليم</b><span>افتح الحجز وسجّل "اتسلم للعميلة" أو "إلغاء".</span></div></div>';
+ if(late.length)h+=sec('متأخرة عند العملاء','<div class="stack">'+late.map(function(b){return bkRow(b,'كان المفروض ترجع '+nice(b.ret))}).join('')+'</div>');
+ h+=sec('استلامات الأسبوع الجاي',pick.length?'<div class="stack">'+pick.map(function(b){return bkRow(b,'استلام '+nice(b.pickup)+(b.event?' · المناسبة '+nice(b.event):''))}).join('')+'</div>':'<div class="card empty">مفيش استلامات الأسبوع ده</div>');
+ var rs=rets.filter(function(b){return !isLate(b)});
+ h+=sec('فساتين هترجع',rs.length?'<div class="stack">'+rs.map(function(b){return bkRow(b,'ترجع '+nice(b.ret))}).join('')+'</div>':'<div class="card empty">مفيش فساتين بره دلوقتي</div>');
+ return h}
+
+/* ---------- الحجوزات ---------- */
+function vBookings(){var ch=[['up','القادمة'],['out','مع العملاء'],['late','متأخرة'],['due','عليها فلوس'],['done','خلصت'],['all','الكل']];
+ return '<div class="between"><h1>الحجوزات</h1></div><label class="search">'+ic('search',18)+'<input id="bq" type="search" aria-label="بحث في الحجوزات" placeholder="اسم، تليفون، كود حجز أو فستان" value="'+esc(F.q)+'" oninput="F.q=this.value;listBookings()"></label><div class="chips" style="margin-top:12px">'+ch.map(function(c){return '<button class="chip'+(F.f===c[0]?' on':'')+'" onclick="F.f=\''+c[0]+'\';draw()">'+c[1]+'</button>'}).join('')+'</div><div id="blst" class="stack" style="margin-top:14px"></div>'}
+function listBookings(){var q=F.q.trim(),f=F.f;var L=D.bookings.filter(function(b){
+ if(q&&(b.name+' '+b.phone+' '+b.code+' '+b.dress+' '+b.dressDesc).toLowerCase().indexOf(q.toLowerCase())<0)return false;
+ if(f==='up')return b.status===ST.BOOKED;if(f==='out')return b.status===ST.OUT;if(f==='late')return isLate(b);if(f==='due')return b.status!==ST.CANCEL&&b.remaining>0;if(f==='done')return b.status===ST.BACK||b.status===ST.CANCEL;return true});
+ L.sort(function(a,b){if(f==='done'||f==='all')return a.pickup<b.pickup?1:-1;if(f==='out'||f==='late')return a.ret<b.ret?-1:1;return a.pickup<b.pickup?-1:1});
+ setH($('blst'),L.length?'<span class="sub">'+L.length+' حجز</span>'+L.map(function(b){return bkRow(b)}).join(''):'<div class="card empty">مفيش حجوزات هنا</div>')}
+
+function vBooking(){var b=bookBy(V.c);if(!b)return hdr('الحجز',"go('bookings')")+'<div class="empty">الحجز مش موجود</div>';
+ var d=dressBy(b.dress)||{},c=custBy(b.cust)||{},pays=D.payments.filter(function(p){return p.bk===b.code});
+ var h=hdr('حجز <span class="code">'+esc(b.code)+'</span>',"go('bookings')");
+ h+='<div class="row" style="margin-top:16px"><div class="col"><h1>'+esc(b.name)+'</h1><span class="sub" dir="ltr" style="text-align:right">'+esc(b.phone)+'</span></div>'+bookTag(b)+'</div>';
+ var cf=active(b)?conflicts(b.dress,b.pickup,b.ret,b.code):[];
+ if(cf.length)h+='<div class="alert" style="margin-top:12px">'+ic('warn',20,'#8E3A32')+'<span>تعارض مع: '+cf.map(function(x){return esc(x.code+' '+x.name)}).join('، ')+'</span></div>';
+ h+='<div class="card" style="margin-top:14px"><div class="kv"><span>الفستان</span><b><button class="lnk" onclick="go(\'dress\',{c:\''+b.dress+'\'})"><span class="code">'+esc(b.dress)+'</span> '+esc(b.dressDesc)+'</button></b></div><div class="kv"><span>المناسبة</span><b>'+nice(b.event)+'</b></div><div class="kv"><span>الاستلام</span><b>'+nice(b.pickup)+' ('+esc(b.pickup)+')</b></div><div class="kv"><span>الإرجاع</span><b>'+nice(b.ret)+' ('+esc(b.ret)+')</b></div><div class="kv"><span>الموظف</span><b>'+esc(b.staff||'—')+'</b></div>'+(b.notes?'<div class="kv"><span>ملاحظات</span><b>'+esc(b.notes)+'</b></div>':'')+'</div>';
+ h+='<div class="card" style="margin-top:12px"><div class="kv"><span>سعر الإيجار</span><b class="money">'+money(b.price)+'</b></div>'+(b.discount?'<div class="kv"><span>الخصم</span><b class="money">'+money(b.discount)+'</b></div>':'')+'<div class="kv"><span>الصافي</span><b class="money">'+money(b.net)+'</b></div><div class="kv"><span>اتدفع</span><b class="money" style="color:var(--grn)">'+money(b.paid)+'</b></div><div class="kv"><span>المتبقي</span><b class="money" style="color:'+(b.remaining>0?'var(--red)':'var(--grn)')+'">'+money(b.remaining)+'</b></div>'+(b.staff&&(admin()||b.staff===D.me.name)?'<div class="kv"><span>عمولة '+esc(b.staff)+' ('+Math.round(b.rate*1000)/10+'%)</span><b class="money">'+money(b.commission)+'</b></div>':'')+'</div>';
+ var a=[];
+ if(b.status===ST.BOOKED)a.push('<button class="btn pri" onclick="doStatus(\''+b.code+'\',\''+ST.OUT+'\')">اتسلم للعميلة</button>');
+ if(b.status===ST.OUT)a.push('<button class="btn pri" onclick="askReturn(\''+b.code+'\')">الفستان رجع</button>');
+ if(b.status!==ST.CANCEL&&b.remaining>0)a.push('<button class="btn" onclick="askPay(\''+b.code+'\')">تسجيل دفعة</button>');
+ if(b.phone){
+  var shop=D.settings.shop,msg1='أهلاً '+b.name+' 🌸\nبنفكّرك إن ميعاد استلام الفستان ('+b.dressDesc+') يوم '+nice(b.pickup)+' '+b.pickup+'.'+(b.remaining>0?'\nالمتبقي: '+money(b.remaining)+'.':'')+'\n'+shop;
+  var msg2='أهلاً '+b.name+' 🌸\nبنفكّرك إن ميعاد إرجاع الفستان ('+b.dressDesc+') يوم '+nice(b.ret)+' '+b.ret+'.\nشكراً ليكي\n'+shop;
+  var msg3='أهلاً '+b.name+' 🌸\nإيصال حجز '+b.code+'\nالفستان: '+b.dressDesc+'\nالاستلام: '+b.pickup+'\nالإرجاع: '+b.ret+'\nالصافي: '+money(b.net)+'\nاتدفع: '+money(b.paid)+'\nالمتبقي: '+money(b.remaining)+'\n'+shop;
+  a.push('<a class="btn wa" target="_blank" href="'+esc(waLink(b.phone,b.status===ST.OUT?msg2:msg1))+'">'+ic('chat',18)+(b.status===ST.OUT?'تذكير بالإرجاع':'تذكير بالاستلام')+'</a>');
+  a.push('<a class="btn" target="_blank" href="'+esc(waLink(b.phone,msg3))+'">إيصال واتساب</a>');
+  a.push('<a class="btn" href="tel:'+esc(b.phone)+'">'+ic('phone',18)+'اتصال</a>')}
+ if(admin()&&b.status!==ST.BACK)a.push('<button class="btn" onclick="go(\'editBooking\',{c:\''+b.code+'\'})">'+ic('edit',18)+'تعديل الحجز</button>');
+ if(admin()&&b.status===ST.BOOKED)a.push('<button class="btn danger" onclick="askCancel(\''+b.code+'\')">إلغاء الحجز</button>');
+ if(admin()&&b.paid>0&&(b.status===ST.CANCEL||b.paid>b.net))a.push('<button class="btn" onclick="askPay(\''+b.code+'\',true)">رد فلوس للعميلة</button>');
+ h+='<div class="grid2" style="margin-top:14px">'+a.join('')+'</div>';
+ h+=sec('المدفوعات',pays.length?'<div class="card" style="padding:0 14px">'+pays.map(function(p){return '<div class="crow"><div class="col"><b>'+esc(p.type)+' · '+esc(p.method)+'</b><span class="sub">'+esc(p.date)+(p.staff?' · '+esc(p.staff):'')+'</span></div><b class="money" style="color:'+(p.net<0?'var(--red)':'var(--grn)')+'">'+money(p.net)+'</b></div>'}).join('')+'</div>':'<div class="card empty">مفيش مدفوعات</div>');
+ if(c.code)h+='<button class="btn" style="width:100%;margin-top:14px" onclick="go(\'customer\',{c:\''+c.code+'\'})">ملف العميلة</button>';
+ return h}
+function doStatus(code,st,clean){run('appSetStatus',[code,st,!!clean],function(){toast('اتسجل: '+st);closeSheet();draw()})}
+function askReturn(code){openSheet('<h2>الفستان رجع</h2><p class="sub">لو الفستان محتاج تنظيف قبل الحجز اللي بعده، هيتسجل "تنظيف" ومش هيبان متاح لحد ما ترجّعه "جاهز".</p><div class="stack"><button class="btn pri" onclick="doStatus(\''+code+'\',\''+ST.BACK+'\',true)">رجع ومحتاج تنظيف</button><button class="btn" onclick="doStatus(\''+code+'\',\''+ST.BACK+'\',false)">رجع وجاهز على طول</button><button class="btn" onclick="closeSheet()">رجوع</button></div>')}
+function askCancel(code){var b=bookBy(code);openSheet('<h2>إلغاء الحجز '+esc(code)+'؟</h2><p class="sub">'+(b.paid>0?'العميلة دافعة '+money(b.paid)+'. بعد الإلغاء تقدر تسجّل رد الفلوس لو هترجعها.':'')+'</p><div class="stack"><button class="btn danger" onclick="doStatus(\''+code+'\',\''+ST.CANCEL+'\')">أيوه، إلغاء الحجز</button><button class="btn" onclick="closeSheet()">لا، رجوع</button></div>')}
+function staffOpts(sel){return '<option value="">—</option>'+D.settings.staff.map(function(s){return '<option'+(s.name===sel?' selected':'')+'>'+esc(s.name)+'</option>'}).join('')}
+function methodOpts(){return D.settings.methods.map(function(m){return '<option>'+esc(m)+'</option>'}).join('')}
+function askPay(code,refund){var b=bookBy(code);openSheet('<h2>'+(refund?'رد فلوس للعميلة':'تسجيل دفعة')+'</h2><p class="sub">'+esc(b.name)+' · '+(refund?'دافعة '+money(b.paid):'المتبقي '+money(b.remaining))+'</p><div class="stack"><label class="f">المبلغ<input id="pAmt" type="number" inputmode="numeric" min="1" value="'+(refund?b.paid:b.remaining)+'"></label><label class="f">طريقة الدفع<select id="pMet">'+methodOpts()+'</select></label><p class="sub" style="margin:0">هيتسجل إن '+esc(D.me.name)+' استلم المبلغ.</p><label class="f">ملاحظات<input id="pNote"></label><button class="btn pri" onclick="doPay(\''+code+'\','+(refund?1:0)+')">حفظ</button><button class="btn" onclick="closeSheet()">رجوع</button></div>')}
+function doPay(code,refund){var b=bookBy(code),amt=Number($('pAmt').value);var type=refund?'مرتجع للعميلة':(amt>=b.remaining?'استكمال':'دفعة');run('appAddPayment',[code,amt,type,$('pMet').value,$('pNote').value],function(){toast('اتسجلت الدفعة ✓');closeSheet();draw()})}
+function openSheet(html){setH($('sheetHost'),'<div class="sheet" onclick="if(event.target===this)closeSheet()"><div class="panel" role="dialog" aria-modal="true">'+html+'</div></div>')}
+function closeSheet(){setH($('sheetHost'),'')}
+
+/* ---------- الفساتين ---------- */
+function vDresses(){var ch=[['all','الكل'],['free','متاح'],['booked','محجوز النهارده'],['out','مع العملاء'],['tech','تنظيف وصيانة']].concat(D.settings.types.map(function(t,i){return ['t'+i,t]}));
+ return '<div class="between"><h1>الفساتين</h1>'+(admin()?'<button class="btn" style="min-height:44px" onclick="go(\'dressForm\')">'+ic('plus',18)+'فستان جديد</button>':'')+'</div><div class="search">'+ic('search',18)+'<input id="dq" type="search" aria-label="بحث في الفساتين" placeholder="الكود أو الوصف أو اللون أو المقاس" value="'+esc(FD.q)+'" oninput="FD.q=this.value;listDresses()" onkeydown="if(event.key===\'Enter\')exactDress(this.value)"><button class="ibtn" style="border:0" aria-label="مسح باركود" onclick="scan(\'dress\')">'+ic('scan')+'</button></div><div class="chips" style="margin-top:12px">'+ch.map(function(c){return '<button class="chip'+(FD.f===c[0]?' on':'')+'" onclick="FD.f=\''+c[0]+'\';draw()">'+esc(c[1])+'</button>'}).join('')+'</div><div id="dlst" class="stack" style="margin-top:14px"></div>'}
+function exactDress(v){v=String(v||'').trim().toUpperCase();var d=dressBy(v)||dressBy('DR-'+v.replace(/^DR-?/,'').padStart(4,'0'));if(d)go('dress',{c:d.code})}
+function listDresses(){var q=FD.q.trim().toLowerCase(),f=FD.f;var L=D.dresses.filter(function(d){
+ if(q&&(d.code+' '+d.desc+' '+d.color+' '+d.size+' '+d.type).toLowerCase().indexOf(q)<0)return false;
+ var s=dressState(d);if(f==='free')return s.k==='free';if(f==='booked')return s.k==='booked';if(f==='out')return s.k==='out';if(f==='tech')return s.k==='tech';if(f.charAt(0)==='t'&&f!=='tech')return d.type===D.settings.types[+f.slice(1)];return true});
+ setH($('dlst'),L.length?'<span class="sub">'+L.length+' فستان</span>'+L.map(function(d){var s=dressState(d);return '<button class="card row" onclick="go(\'dress\',{c:\''+d.code+'\'})"><div class="av">'+esc(d.code.replace('DR-',''))+'</div><div class="col"><b>'+esc(d.desc)+'</b><span class="sub">'+esc([d.type,d.color,d.size?'مقاس '+d.size:''].filter(Boolean).join(' · '))+'</span><span class="sub money">'+money(d.price)+'</span></div><span class="tag '+s.c+'">'+esc(s.t)+'</span></button>'}).join(''):'<div class="card empty">مفيش فساتين'+(D.dresses.length?' بالمواصفات دي':'. ضيف أول فستان.')+'</div>')}
+function vDress(){var d=dressBy(V.c);if(!d)return hdr('الفستان',"go('dresses')")+'<div class="empty">الفستان مش موجود</div>';
+ var s=dressState(d),bk=D.bookings.filter(function(b){return b.dress===d.code}),fut=bk.filter(function(b){return b.status===ST.BOOKED||b.status===ST.OUT}).sort(function(a,b){return a.pickup<b.pickup?-1:1});
+ var rented=bk.filter(function(b){return b.status===ST.OUT||b.status===ST.BACK}).length,rev=bk.filter(function(b){return b.status!==ST.CANCEL}).reduce(function(x,b){return x+b.net},0),cost=D.expenses.filter(function(e){return e.dress===d.code}).reduce(function(x,e){return x+e.amount},0);
+ var h=hdr('<span class="code">'+esc(d.code)+'</span>',"go('dresses')",admin()?'<button class="ibtn round" aria-label="تعديل الفستان والسعر" onclick="go(\'dressForm\',{c:\''+d.code+'\'})">'+ic('edit',18)+'</button>':'');
+ h+='<div class="row" style="margin-top:16px"><div class="col"><h1>'+esc(d.desc)+'</h1><span class="sub">'+esc([d.type,d.color,d.size?'مقاس '+d.size:''].filter(Boolean).join(' · '))+'</span></div><span class="tag '+s.c+'">'+esc(s.t)+'</span></div>';
+ h+='<div class="grid3" style="margin-top:14px"><div class="card"><span class="sub">الإيجار</span><br><b class="money">'+money(d.price)+'</b></div><div class="card"><span class="sub">اتأجر</span><br><b>'+rented+' مرة</b></div><div class="card"><span class="sub">جاب</span><br><b class="money">'+money(rev)+'</b></div></div>';
+ if(admin()&&(d.cost||cost))h+='<div class="card" style="margin-top:10px"><div class="kv"><span>تكلفة الشراء</span><b class="money">'+money(d.cost)+'</b></div><div class="kv"><span>تنظيف وصيانة</span><b class="money">'+money(cost)+'</b></div><div class="kv"><span>صافي ما جابه الفستان</span><b class="money" style="color:'+(rev-cost-d.cost>=0?'var(--grn)':'var(--red)')+'">'+money(rev-cost-d.cost)+'</b></div></div>';
+ h+='<button class="btn pri" style="width:100%;margin-top:14px" onclick="startBooking(\''+d.code+'\')">'+ic('plus',18)+'احجز الفستان ده</button>';
+ h+=sec('الحالة الفنية','<div class="chips">'+(admin()?['جاهز','تنظيف','صيانة','خارج الخدمة']:['جاهز','تنظيف','صيانة']).map(function(t){return '<button class="chip'+(d.tech===t?' on':'')+'" onclick="setTech(\''+d.code+'\',\''+t+'\')">'+t+'</button>'}).join('')+'</div>');
+ h+=sec('الحجوزات الجاية',fut.length?'<div class="stack">'+fut.map(function(b){return bkRow(b)}).join('')+'</div>':'<div class="card empty">مفيش حجوزات جاية</div>');
+ var past=bk.filter(function(b){return b.status===ST.BACK||b.status===ST.CANCEL}).sort(function(a,b){return a.pickup<b.pickup?1:-1});
+ if(past.length)h+=sec('حجوزات قديمة','<div class="stack">'+past.slice(0,10).map(function(b){return bkRow(b)}).join('')+'</div>');
+ return h}
+function setTech(code,t){run('appSetDressTech',[code,t],function(){toast('اتسجلت الحالة: '+t);draw()})}
+function vDressForm(){var d=V.c?dressBy(V.c):null;d=d||{};
+ return hdr(d.code?'تعديل '+esc(d.code):'فستان جديد',d.code?"go('dress',{c:'"+d.code+"'})":"go('dresses')")+'<form class="card stack" style="margin-top:16px" onsubmit="saveDress(event)"><label class="f">الوصف *<input name="desc" required value="'+esc(d.desc||'')+'" placeholder="مثال: فستان زفاف ملكي ديل طويل"></label><div class="grid2"><label class="f">النوع<select name="type">'+D.settings.types.map(function(t){return '<option'+(t===d.type?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'</select></label><label class="f">اللون<input name="color" value="'+esc(d.color||'')+'"></label></div><div class="grid2"><label class="f">المقاس<input name="size" value="'+esc(d.size||'')+'"></label><label class="f">سعر الإيجار *<input name="price" type="number" inputmode="numeric" min="0" required value="'+(d.price||'')+'"></label></div><div class="grid2"><label class="f">تكلفة الشراء<input name="cost" type="number" inputmode="numeric" min="0" value="'+(d.cost||'')+'"></label><label class="f">تاريخ الشراء<input name="bought" type="date" value="'+esc(d.bought||'')+'"></label></div><button class="btn pri" type="submit">حفظ الفستان</button></form>'+(d.code?'':'<p class="sub" style="margin-top:12px">الكود بيتعمل لوحده (DR-0001، DR-0002...). الباركود بتاعه في تبويب "ملصقات الباركود" في الشيت، اطبعه والزقه على الشماعة.</p>')}
+function saveDress(e){e.preventDefault();var f=e.target,o={code:V.c||''};['desc','type','color','size','price','cost','bought'].forEach(function(k){o[k]=f[k].value});if(V.c)o.tech=dressBy(V.c).tech;run('appSaveDress',[o],function(r){toast('اتحفظ الفستان '+r.code+' ✓');go('dress',{c:r.code})})}
+
+/* ---------- مسح الباركود ---------- */
+function scan(to){SCAN_TO=to;if(!('BarcodeDetector' in window)){toast('مسح الباركود مش مدعوم على الموبايل ده. اكتب الكود أو استخدم قارئ باركود.');var i=$('dq')||$('nbDq');if(i)i.focus();return}$('scanFile').value='';$('scanFile').click()}
+function scanPicked(inp){var f=inp.files&&inp.files[0];if(!f)return;busy(true,'بقرا الباركود...');createImageBitmap(f).then(function(bmp){return new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13']}).detect(bmp)}).then(function(r){busy(false);if(!r||!r.length){toast('مالقيتش باركود في الصورة. قرّب الكاميرا وجرّب تاني.');return}var v=String(r[0].rawValue||'').trim().toUpperCase(),d=dressBy(v);if(!d){toast('الكود '+v+' مش متسجل');return}if(SCAN_TO==='book')nbPickDress(d.code);else go('dress',{c:d.code})}).catch(function(){busy(false);toast('معرفتش أقرا الصورة. جرّب تاني أو اكتب الكود.')})}
+
+/* ---------- حجز جديد ---------- */
+function startBooking(dress){NB={dress:dress||'',cust:'',newCust:false,q:'',dq:''};go('newBooking')}
+function vNewBooking(){if(!NB)NB={dress:'',cust:'',newCust:false,q:'',dq:''};var d=NB.dress?dressBy(NB.dress):null,c=NB.cust?custBy(NB.cust):null;
+ var h=hdr('حجز جديد',"go('bookings')");
+ h+='<div class="legend" style="margin-top:18px"><h2>1. الفستان</h2></div>';
+ if(d)h+='<div class="card row" style="margin-top:8px"><div class="av">'+esc(d.code.replace('DR-',''))+'</div><div class="col"><b>'+esc(d.desc)+'</b><span class="sub">'+esc([d.type,d.color,d.size?'مقاس '+d.size:''].filter(Boolean).join(' · '))+' · '+money(d.price)+'</span></div><button class="chip" onclick="NB.dress=\'\';draw()">تغيير</button></div>';
+ else h+='<div class="search">'+ic('search',18)+'<input id="nbDq" type="search" aria-label="دوّر على الفستان" placeholder="كود أو وصف الفستان" value="'+esc(NB.dq)+'" oninput="NB.dq=this.value;nbDressList()"><button class="ibtn" style="border:0" aria-label="مسح باركود" onclick="scan(\'book\')">'+ic('scan')+'</button></div><div class="pick" id="nbDl" style="margin-top:8px"></div>';
+ h+='<div style="margin-top:20px"><h2>2. المواعيد</h2></div><div class="card stack" style="margin-top:8px"><div class="grid2"><label class="f">الاستلام *<input id="nbP" type="date" value="'+esc(NB.pickup||'')+'" onchange="NB.pickup=this.value;if(!$(\'nbR\').value){var r=addD(this.value,2);$(\'nbR\').value=r;NB.ret=r}nbRefresh()"></label><label class="f">الإرجاع *<input id="nbR" type="date" value="'+esc(NB.ret||'')+'" onchange="NB.ret=this.value;nbRefresh()"></label></div><label class="f">تاريخ المناسبة<input id="nbE" type="date" value="'+esc(NB.event||'')+'" onchange="NB.event=this.value"></label><div id="nbAv"></div></div>';
+ h+='<div style="margin-top:20px"><h2>3. العميلة</h2></div>';
+ if(c)h+='<div class="card row" style="margin-top:8px"><div class="col"><b>'+esc(c.name)+'</b><span class="sub" dir="ltr" style="text-align:right">'+esc(c.phone)+'</span></div><button class="chip" onclick="NB.cust=\'\';draw()">تغيير</button></div>';
+ else if(NB.newCust)h+='<div class="card stack" style="margin-top:8px"><label class="f">اسم العميلة *<input id="ncN" value="'+esc(NB.ncN||'')+'" oninput="NB.ncN=this.value"></label><label class="f">رقم التليفون *<input id="ncP" type="tel" inputmode="tel" placeholder="01012345678" value="'+esc(NB.ncP||'')+'" oninput="NB.ncP=this.value"></label><label class="f">المقاسات<input id="ncM" value="'+esc(NB.ncM||'')+'" oninput="NB.ncM=this.value" placeholder="صدر - وسط - طول"></label><button class="chip" style="align-self:flex-start" onclick="NB.newCust=false;draw()">اختار عميلة متسجلة بدل كده</button></div>';
+ else h+='<div class="search">'+ic('search',18)+'<input id="nbCq" type="search" aria-label="دوّر على العميلة" placeholder="اسم أو رقم تليفون" value="'+esc(NB.q)+'" oninput="NB.q=this.value;nbCustList()"></div><div class="pick" id="nbCl" style="margin-top:8px"></div><button class="btn" style="width:100%;margin-top:8px" onclick="NB.newCust=true;NB.ncN=NB.q&&!/^\\d/.test(NB.q)?NB.q:\'\';NB.ncP=/^\\d/.test(NB.q||\'\')?NB.q:\'\';draw()">'+ic('plus',18)+'عميلة جديدة</button>';
+ h+='<div style="margin-top:20px"><h2>4. الحساب</h2></div><div class="card stack" style="margin-top:8px"><div class="grid2"><label class="f">سعر الإيجار<input id="nbPr" type="number" inputmode="numeric" min="0" value="'+esc(admin()&&NB.price!=null?NB.price:(d?d.price:''))+'" oninput="NB.price=this.value;nbSum()"'+(admin()?'':' readonly style="opacity:.7"')+'></label><label class="f">الخصم'+(admin()?'':' (أقصى '+Math.round(D.settings.maxDisc*100)+'%)')+'<input id="nbDi" type="number" inputmode="numeric" min="0" value="'+esc(NB.discount||'')+'" oninput="NB.discount=this.value;nbSum()"></label></div><div class="grid2"><label class="f">العربون المدفوع<input id="nbDe" type="number" inputmode="numeric" min="0" value="'+esc(NB.deposit||'')+'" oninput="NB.deposit=this.value;nbSum()"></label><label class="f">طريقة الدفع<select id="nbMe" onchange="NB.method=this.value">'+methodOpts()+'</select></label></div>'+(admin()?'<label class="f">الموظف المسؤول<select id="nbSt" onchange="NB.staff=this.value">'+staffOpts(NB.staff||D.me.name)+'</select></label>':'<p class="sub" style="margin:0">الحجز والعربون هيتسجلوا باسم '+esc(D.me.name)+'.</p>')+'<label class="f">ملاحظات<input id="nbNo" value="'+esc(NB.notes||'')+'" oninput="NB.notes=this.value" placeholder="تعديلات، إكسسوارات..."></label><div id="nbSum"></div></div>';
+ h+='<button class="btn pri" id="nbSave" style="width:100%;margin-top:18px;min-height:54px" onclick="saveBooking()">تأكيد الحجز</button>';
+ return h}
+function nbRefresh(){if(!NB)return;if($('nbDl'))nbDressList();if($('nbCl'))nbCustList();if($('nbMe')&&NB.method)$('nbMe').value=NB.method;nbAvail();nbSum()}
+function nbDressList(){var q=(NB.dq||'').trim().toLowerCase();var L=D.dresses.filter(function(d){return d.tech!=='خارج الخدمة'&&(!q||(d.code+' '+d.desc+' '+d.color+' '+d.size).toLowerCase().indexOf(q)>=0)}).slice(0,40);
+ setH($('nbDl'),L.length?L.map(function(d){var free=!(NB.pickup&&NB.ret)||!conflicts(d.code,NB.pickup,NB.ret,'').length;return '<button onclick="nbPickDress(\''+d.code+'\')"><span class="code">'+esc(d.code)+'</span><span class="col"><b>'+esc(d.desc)+'</b><span class="sub">'+esc([d.color,d.size?'مقاس '+d.size:''].filter(Boolean).join(' · '))+' · '+money(d.price)+'</span></span>'+(NB.pickup&&NB.ret?(free?'<span class="tag t-grn">متاح</span>':'<span class="tag t-red">محجوز</span>'):'')+'</button>'}).join(''):'<div class="empty">مفيش فساتين</div>')}
+function nbPickDress(code){NB.dress=code;NB.price=null;closeSheet();if(V.s!=='newBooking')go('newBooking');else draw()}
+function nbCustList(){var q=(NB.q||'').trim().toLowerCase();if(!q){setH($('nbCl'),'<div class="empty">اكتب اسم أو رقم العميلة</div>');return}var L=D.customers.filter(function(c){return (c.name+' '+c.phone+' '+c.phone2+' '+c.code).toLowerCase().indexOf(q)>=0}).slice(0,30);
+ setH($('nbCl'),L.length?L.map(function(c){return '<button onclick="NB.cust=\''+c.code+'\';draw()"><span class="col"><b>'+esc(c.name)+'</b><span class="sub" dir="ltr" style="text-align:right">'+esc(c.phone)+'</span></span></button>'}).join(''):'<div class="empty">مش متسجلة. اضغط "عميلة جديدة".</div>')}
+function nbAvail(){var el=$('nbAv');if(!el)return;if(!(NB.dress&&NB.pickup&&NB.ret)){setH(el,'');return}if(NB.ret<NB.pickup){setH(el,'<div class="alert">'+ic('warn',20,'#8E3A32')+'<span>تاريخ الإرجاع قبل الاستلام</span></div>');return}var cf=conflicts(NB.dress,NB.pickup,NB.ret,'');var d=dressBy(NB.dress);
+ if(cf.length)setH(el,'<div class="alert">'+ic('warn',20,'#8E3A32')+'<span>الفستان محجوز في الفترة دي: '+cf.map(function(b){return esc(b.name+' ('+b.pickup+' لـ '+b.ret+')')}).join('، ')+'</span></div>');
+ else if(d&&d.tech!=='جاهز')setH(el,'<div class="alert" style="background:var(--ambbg);color:var(--amb)">'+ic('warn',20,'#7A5212')+'<span>الفستان متاح في المواعيد دي، بس حالته دلوقتي "'+esc(d.tech)+'".</span></div>');
+ else setH(el,'<div class="ok">✓ الفستان متاح من '+nice(NB.pickup)+' لـ '+nice(NB.ret)+' ('+(diffD(NB.pickup,NB.ret)+1)+' أيام)</div>')}
+function nbSum(){var el=$('nbSum');if(!el)return;var pr=Number($('nbPr').value)||0,di=Number($('nbDi').value)||0,de=Number($('nbDe').value)||0;var net=pr-di;setH(el,'<div class="kv"><span>الصافي</span><b class="money">'+money(net)+'</b></div><div class="kv"><span>المتبقي بعد العربون</span><b class="money" style="color:'+(net-de>0?'var(--red)':'var(--grn)')+'">'+money(net-de)+'</b></div>')}
+function saveBooking(){if(!NB.dress)return toast('اختار الفستان');NB.pickup=$('nbP').value;NB.ret=$('nbR').value;NB.event=$('nbE').value;if(!NB.pickup||!NB.ret)return toast('اكتب تاريخ الاستلام والإرجاع');if(conflicts(NB.dress,NB.pickup,NB.ret,'').length)return toast('الفستان محجوز في الفترة دي');
+ var o={dress:NB.dress,cust:NB.cust,event:NB.event,pickup:NB.pickup,ret:NB.ret,price:$('nbPr').value,discount:$('nbDi').value,deposit:$('nbDe').value,method:$('nbMe').value,staff:$('nbSt')?$('nbSt').value:D.me.name,notes:$('nbNo').value};
+ if(!admin()&&Number(o.discount||0)>Number(o.price)*D.settings.maxDisc+0.001)return toast('أقصى خصم مسموح '+Math.round(D.settings.maxDisc*100)+'%');
+ if(!o.cust){if(!NB.newCust)return toast('اختار العميلة أو ضيف عميلة جديدة');o.newCust={name:$('ncN').value,phone:$('ncP').value,measures:$('ncM').value};if(!o.newCust.name||!o.newCust.phone)return toast('اكتب اسم العميلة ورقمها')}
+ if(Number(o.discount)>Number(o.price))return toast('الخصم أكبر من السعر');if(Number(o.deposit)>Number(o.price)-Number(o.discount||0))return toast('العربون أكبر من صافي القيمة');
+ run('appCreateBooking',[o],function(r){NB=null;toast('اتسجل الحجز '+r.code+' ✓');go('booking',{c:r.code})},'جاري تسجيل الحجز...')}
+
+/* ---------- العملاء ---------- */
+function vCustomers(){return '<div class="between"><h1>العملاء</h1><button class="btn" style="min-height:44px" onclick="go(\'custForm\')">'+ic('plus',18)+'عميلة جديدة</button></div><label class="search">'+ic('search',18)+'<input id="cq" type="search" aria-label="بحث في العملاء" placeholder="اسم أو رقم تليفون" value="'+esc(FC.q)+'" oninput="FC.q=this.value;listCustomers()"></label><div id="clst" class="stack" style="margin-top:14px"></div>'}
+function listCustomers(){var q=FC.q.trim().toLowerCase();var L=D.customers.filter(function(c){return !q||(c.name+' '+c.phone+' '+c.phone2+' '+c.code).toLowerCase().indexOf(q)>=0});L.sort(function(a,b){return a.code<b.code?1:-1});
+ setH($('clst'),L.length?'<span class="sub">'+L.length+' عميلة</span>'+L.slice(0,200).map(function(c){var bk=D.bookings.filter(function(b){return b.cust===c.code&&b.status!==ST.CANCEL});var due=bk.reduce(function(s,b){return s+b.remaining},0);return '<button class="card row" onclick="go(\'customer\',{c:\''+c.code+'\'})"><div class="col"><b>'+esc(c.name)+'</b><span class="sub" dir="ltr" style="text-align:right">'+esc(c.phone)+'</span><span class="sub">'+bk.length+' حجز</span></div>'+(due>0?'<span class="tag t-amb">عليها '+money(due)+'</span>':'')+'</button>'}).join(''):'<div class="card empty">مفيش عملاء'+(q?' بالاسم ده':'')+'</div>')}
+function vCustomer(){var c=custBy(V.c);if(!c)return hdr('العميلة',"go('customers')")+'<div class="empty">مش موجودة</div>';var bk=D.bookings.filter(function(b){return b.cust===c.code}).sort(function(a,b){return a.pickup<b.pickup?1:-1});var paid=bk.reduce(function(s,b){return s+b.paid},0),due=bk.reduce(function(s,b){return s+(b.status!==ST.CANCEL?b.remaining:0)},0);
+ var h=hdr('ملف العميلة',"go('customers')",'<button class="ibtn round" aria-label="تعديل" onclick="go(\'custForm\',{c:\''+c.code+'\'})">'+ic('edit',18)+'</button>');
+ h+='<div style="margin-top:16px"><h1>'+esc(c.name)+'</h1><span class="code">'+esc(c.code)+'</span></div>';
+ h+='<div class="card" style="margin-top:14px"><div class="kv"><span>التليفون</span><b dir="ltr">'+esc(c.phone)+'</b></div>'+(c.phone2?'<div class="kv"><span>تليفون آخر</span><b dir="ltr">'+esc(c.phone2)+'</b></div>':'')+(c.address?'<div class="kv"><span>العنوان</span><b>'+esc(c.address)+'</b></div>':'')+(c.measures?'<div class="kv"><span>المقاسات</span><b>'+esc(c.measures)+'</b></div>':'')+(c.notes?'<div class="kv"><span>ملاحظات</span><b>'+esc(c.notes)+'</b></div>':'')+'<div class="kv"><span>إجمالي اللي دفعته</span><b class="money">'+money(paid)+'</b></div><div class="kv"><span>عليها</span><b class="money" style="color:'+(due>0?'var(--red)':'var(--grn)')+'">'+money(due)+'</b></div></div>';
+ h+='<div class="grid2" style="margin-top:12px"><a class="btn wa" target="_blank" href="'+esc(waLink(c.phone,'أهلاً '+c.name+' 🌸\n'+D.settings.shop))+'">'+ic('chat',18)+'واتساب</a><a class="btn" href="tel:'+esc(c.phone)+'">'+ic('phone',18)+'اتصال</a></div>';
+ h+='<button class="btn pri" style="width:100%;margin-top:10px" onclick="NB={dress:\'\',cust:\''+c.code+'\',newCust:false,q:\'\',dq:\'\'};go(\'newBooking\')">'+ic('plus',18)+'حجز جديد للعميلة دي</button>';
+ h+=sec('حجوزاتها',bk.length?'<div class="stack">'+bk.map(function(b){return bkRow(b)}).join('')+'</div>':'<div class="card empty">مفيش حجوزات</div>');
+ return h}
+function vCustForm(){var c=V.c?custBy(V.c):null;c=c||{};return hdr(c.code?'تعديل العميلة':'عميلة جديدة',c.code?"go('customer',{c:'"+c.code+"'})":"go('customers')")+'<form class="card stack" style="margin-top:16px" onsubmit="saveCust(event)"><label class="f">الاسم *<input name="name" required value="'+esc(c.name||'')+'"></label><div class="grid2"><label class="f">التليفون *<input name="phone" type="tel" inputmode="tel" required value="'+esc(c.phone||'')+'"></label><label class="f">تليفون آخر<input name="phone2" type="tel" inputmode="tel" value="'+esc(c.phone2||'')+'"></label></div><label class="f">العنوان<input name="address" value="'+esc(c.address||'')+'"></label><label class="f">المقاسات<input name="measures" value="'+esc(c.measures||'')+'" placeholder="صدر - وسط - طول"></label><label class="f">ملاحظات<textarea name="notes" rows="2">'+esc(c.notes||'')+'</textarea></label><button class="btn pri" type="submit">حفظ</button></form>'}
+function saveCust(e){e.preventDefault();var f=e.target,o={code:V.c||''};['name','phone','phone2','address','measures','notes'].forEach(function(k){o[k]=f[k].value});run('appSaveCustomer',[o],function(r){toast('اتحفظ ✓');go('customer',{c:r.code})})}
+
+/* ---------- الحسابات ---------- */
+function shiftMonth(n){var p=MONTH.split('-'),d=new Date(+p[0],+p[1]-1+n,1);MONTH=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2);draw()}
+function vMoney(){var m=MONTH,tab=V.t||'sum';
+ var B=D.bookings.filter(function(b){return monthOf(b.pickup)===m&&b.status!==ST.CANCEL});
+ var P=D.payments.filter(function(p){return monthOf(p.date)===m}),E=D.expenses.filter(function(e){return monthOf(e.date)===m});
+ var val=B.reduce(function(s,b){return s+b.net},0),col=P.reduce(function(s,p){return s+p.net},0);
+ var fx=E.filter(function(e){return e.ctype==='ثابت'}).reduce(function(s,e){return s+e.amount},0),vr=E.filter(function(e){return e.ctype==='متغير'}).reduce(function(s,e){return s+e.amount},0),cp=E.filter(function(e){return e.ctype==='رأسمالي'}).reduce(function(s,e){return s+e.amount},0);
+ var due=D.bookings.reduce(function(s,b){return s+(b.status!==ST.CANCEL&&b.remaining>0?b.remaining:0)},0);
+ var h='<div class="between"><h1>الإدارة</h1><button class="ibtn round" aria-label="الإعدادات والمستخدمين" onclick="go(\'settings\')">'+ic('cog',20)+'</button></div><div class="between card" style="margin-top:14px;padding:6px"><button class="ibtn" style="border:0" aria-label="الشهر اللي فات" onclick="shiftMonth(-1)">'+ic('back')+'</button><b>'+m+'</b><button class="ibtn" style="border:0;transform:scaleX(-1)" aria-label="الشهر الجاي" onclick="shiftMonth(1)">'+ic('back')+'</button></div>';
+ h+='<div class="seg" style="margin-top:12px"><button class="'+(tab==='sum'?'on':'')+'" onclick="V.t=\'sum\';draw()">الإيرادات والمصروفات</button><button class="'+(tab==='com'?'on':'')+'" onclick="V.t=\'com\';draw()">العمولات</button></div>';
+ if(tab==='sum'){
+  h+='<div class="card" style="margin-top:14px"><div class="kv"><span>عدد الحجوزات (بتاريخ الاستلام)</span><b>'+B.length+'</b></div><div class="kv"><span>قيمة الحجوزات</span><b class="money">'+money(val)+'</b></div><div class="kv"><span>المحصّل فعلاً</span><b class="money" style="color:var(--grn)">'+money(col)+'</b></div><div class="kv"><span>مصروفات ثابتة</span><b class="money">'+money(fx)+'</b></div><div class="kv"><span>مصروفات متغيرة (منها العمولات المصروفة)</span><b class="money">'+money(vr)+'</b></div><div class="kv"><span><b>الربح التشغيلي</b></span><b class="money" style="color:'+(col-fx-vr>=0?'var(--grn)':'var(--red)')+'">'+money(col-fx-vr)+'</b></div><div class="kv"><span>شراء فساتين وتجهيزات</span><b class="money">'+money(cp)+'</b></div><div class="kv"><span>صافي حركة الفلوس</span><b class="money">'+money(col-fx-vr-cp)+'</b></div></div>';
+  h+='<div class="card" style="margin-top:10px"><div class="kv"><span>كل الفلوس اللي لسه ماتحصلتش (كل الشهور)</span><b class="money" style="color:var(--red)">'+money(due)+'</b></div></div>';
+  h+='<button class="btn pri" style="width:100%;margin-top:14px" onclick="askExpense()">'+ic('plus',18)+'تسجيل مصروف</button>';
+  var byCat={};E.forEach(function(e){byCat[e.cat]=(byCat[e.cat]||0)+e.amount});var cats=Object.keys(byCat).sort(function(a,b){return byCat[b]-byCat[a]});
+  if(cats.length)h+=sec('المصروفات حسب البند','<div class="card" style="padding:0 14px">'+cats.map(function(k){return '<div class="crow"><span class="col">'+esc(k)+'</span><b class="money">'+money(byCat[k])+'</b></div>'}).join('')+'</div>');
+  h+=sec('حركة الفلوس الشهر ده',(P.length+E.length)?'<div class="card" style="padding:0 14px">'+P.map(function(p){return {d:p.date,t:'دفعة · '+p.bk+' · '+(bookBy(p.bk)||{}).name,v:p.net}}).concat(E.map(function(e){return {d:e.date,t:e.cat+(e.staff?' · '+e.staff:'')+(e.notes?' · '+e.notes:''),v:-e.amount}})).sort(function(a,b){return a.d<b.d?1:-1}).slice(0,60).map(function(x){return '<div class="crow"><div class="col"><span>'+esc(x.t)+'</span><span class="sub">'+esc(x.d)+'</span></div><b class="money" style="color:'+(x.v<0?'var(--red)':'var(--grn)')+'">'+money(x.v)+'</b></div>'}).join('')+'</div>':'<div class="card empty">مفيش حركة</div>')}
+ else{
+  var rows=D.settings.staff.map(function(s){if(s.rate===undefined)s.rate=null;var mb=B.filter(function(b){return b.staff===s.name});var earnedAll=D.bookings.filter(function(b){return b.staff===s.name&&b.status!==ST.CANCEL&&b.remaining<=0}).reduce(function(x,b){return x+b.commission},0);var paidOut=D.expenses.filter(function(e){return e.cat==='عمولات الموظفين'&&e.staff===s.name}).reduce(function(x,e){return x+e.amount},0);
+   return {n:s.name,rate:s.rate==null?D.settings.rate:s.rate,cnt:mb.length,val:mb.reduce(function(x,b){return x+b.net},0),com:mb.reduce(function(x,b){return x+b.commission},0),comDue:mb.filter(function(b){return b.remaining<=0}).reduce(function(x,b){return x+b.commission},0),all:earnedAll,out:paidOut}});
+  h+=rows.length?'<div class="stack" style="margin-top:14px">'+rows.map(function(r){return '<div class="card"><div class="between"><b style="font-size:16px">'+esc(r.n)+'</b><span class="tag t-ac">'+Math.round(r.rate*1000)/10+'%</span></div><div class="kv"><span>حجوزات الشهر</span><b>'+r.cnt+' · '+money(r.val)+'</b></div><div class="kv"><span>عمولة الشهر</span><b class="money">'+money(r.com)+'</b></div><div class="kv"><span>منها مستحقة (اتحصّلت)</span><b class="money">'+money(r.comDue)+'</b></div><div class="kv"><span>إجمالي المستحق له (كل الشهور)</span><b class="money">'+money(r.all)+'</b></div><div class="kv"><span>اتصرف له</span><b class="money">'+money(r.out)+'</b></div><div class="kv"><span><b>الباقي له</b></span><b class="money" style="color:'+(r.all-r.out>0?'var(--ac)':'var(--grn)')+'">'+money(r.all-r.out)+'</b></div>'+(r.all-r.out>0?'<button class="btn" style="width:100%;margin-top:8px" onclick="askExpense(\'عمولات الموظفين\',\''+esc(r.n)+'\','+Math.round(r.all-r.out)+')">صرف العمولة</button>':'')+'</div>'}).join('')+'</div>':'<div class="card empty" style="margin-top:14px">ضيف أسماء الموظفين في تبويب "الإعدادات" في الشيت</div>';
+  h+='<p class="sub" style="margin-top:12px">العمولة = صافي الحجز × نسبة الموظف. بتبقى مستحقة لما الحجز يتحصّل بالكامل.</p>'}
+ return h}
+function askExpense(cat,staff,amount){openSheet('<h2>تسجيل مصروف</h2><div class="stack" style="margin-top:12px"><label class="f">البند<select id="eCat" onchange="$(\'eStfW\').style.display=this.value===\'عمولات الموظفين\'?\'flex\':\'none\'">'+D.settings.cats.map(function(c){return '<option'+(c.name===cat?' selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></label><div class="grid2"><label class="f">المبلغ<input id="eAmt" type="number" inputmode="numeric" min="1" value="'+(amount||'')+'"></label><label class="f">التاريخ<input id="eDate" type="date" value="'+D.today+'"></label></div><label class="f" id="eStfW" style="display:'+(cat==='عمولات الموظفين'?'flex':'none')+'">الموظف<select id="eStf">'+staffOpts(staff)+'</select></label><div class="grid2"><label class="f">فستان (اختياري)<select id="eDr"><option value="">—</option>'+D.dresses.map(function(d){return '<option value="'+esc(d.code)+'">'+esc(d.code+' '+d.desc)+'</option>'}).join('')+'</select></label><label class="f">طريقة الدفع<select id="eMet">'+methodOpts()+'</select></label></div><label class="f">ملاحظات<input id="eNote"></label><button class="btn pri" onclick="saveExpense()">حفظ</button><button class="btn" onclick="closeSheet()">رجوع</button></div>')}
+function saveExpense(){var o={cat:$('eCat').value,amount:$('eAmt').value,date:$('eDate').value,staff:$('eStf').value,dress:$('eDr').value,method:$('eMet').value,notes:$('eNote').value};if(o.cat!=='عمولات الموظفين')o.staff='';run('appAddExpense',[o],function(){toast('اتسجل المصروف ✓');closeSheet();draw()})}
+
+/* ---------- تعديل الحجز (المدير) ---------- */
+function vEditBooking(){var b=bookBy(V.c);if(!b)return hdr('تعديل الحجز',"go('bookings')");
+ return hdr('تعديل <span class="code">'+esc(b.code)+'</span>',"go('booking',{c:'"+b.code+"'})")+'<form class="card stack" style="margin-top:16px" onsubmit="saveEdit(event)"><p class="sub" style="margin:0">'+esc(b.name)+'</p><label class="f">الفستان<select name="dress">'+D.dresses.map(function(d){return '<option value="'+esc(d.code)+'"'+(d.code===b.dress?' selected':'')+'>'+esc(d.code+' · '+d.desc)+'</option>'}).join('')+'</select></label><div class="grid2"><label class="f">الاستلام<input name="pickup" type="date" required value="'+esc(b.pickup)+'"></label><label class="f">الإرجاع<input name="ret" type="date" required value="'+esc(b.ret)+'"></label></div><label class="f">تاريخ المناسبة<input name="event" type="date" value="'+esc(b.event)+'"></label><div class="grid2"><label class="f">سعر الإيجار<input name="price" type="number" inputmode="numeric" min="0" value="'+b.price+'"></label><label class="f">الخصم<input name="discount" type="number" inputmode="numeric" min="0" value="'+(b.discount||'')+'"></label></div><label class="f">الموظف المسؤول<select name="staff">'+staffOpts(b.staff)+'</select></label><label class="f">ملاحظات<input name="notes" value="'+esc(b.notes)+'"></label><button class="btn pri" type="submit">حفظ التعديل</button></form><p class="sub" style="margin-top:10px">النظام بيتأكد إن المواعيد الجديدة مافيهاش تعارض قبل الحفظ.</p>'}
+function saveEdit(e){e.preventDefault();var f=e.target,o={code:V.c};['dress','pickup','ret','event','price','discount','staff','notes'].forEach(function(k){o[k]=f[k].value});run('appUpdateBooking',[o],function(r){toast('اتعدل الحجز ✓');go('booking',{c:r.code})})}
+
+/* ---------- الإعدادات والمستخدمين (المدير) ---------- */
+function vSettings(){var s=D.settings;
+ var h=hdr('الإعدادات',"go('money')");
+ h+='<form class="card stack" style="margin-top:16px" onsubmit="saveSettings(event)"><label class="f">اسم المحل<input name="shop" value="'+esc(s.shop)+'"></label><div class="grid2"><label class="f">العمولة الافتراضية %<input name="rate" type="number" inputmode="decimal" step="0.1" min="0" max="100" value="'+Math.round(s.rate*1000)/10+'"></label><label class="f">أقصى خصم للموظف %<input name="maxDisc" type="number" inputmode="decimal" step="1" min="0" max="100" value="'+Math.round(s.maxDisc*100)+'"></label></div><div class="grid2"><label class="f">أيام تجهيز بين الحجزين<input name="buffer" type="number" inputmode="numeric" min="0" max="14" value="'+s.buffer+'"></label><label class="f">واتساب المحل<input name="wa" type="tel" value="'+esc(s.wa)+'"></label></div><button class="btn pri" type="submit">حفظ الإعدادات</button></form>';
+ h+=sec('المستخدمين','<div class="stack">'+(D.users||[]).map(function(u){return '<button class="card row" onclick="go(\'userForm\',{u:\''+esc(u.name)+'\'})"><div class="col"><b>'+esc(u.name)+'</b><span class="sub">'+esc(u.role)+(u.rate!=null?' · عمولة '+Math.round(u.rate*1000)/10+'%':'')+'</span></div>'+(u.active?'<span class="tag '+(u.role==='مدير'?'t-ac':'t-grn')+'">'+esc(u.role)+'</span>':'<span class="tag">موقوف</span>')+'</button>'}).join('')+'</div>','<button class="btn" style="min-height:40px" onclick="go(\'userForm\')">'+ic('plus',18)+'مستخدم</button>');
+ h+='<div class="card" style="margin-top:16px"><b>الصلاحيات</b><p class="sub" style="margin:6px 0 0;line-height:1.8"><b>المدير:</b> كل حاجة: الحسابات والمصروفات والعمولات، تعديل الحجوزات والأسعار، الإلغاء ورد الفلوس، الفساتين والإعدادات والمستخدمين.<br><b>الموظف:</b> يشوف الفساتين المتاحة، يحجز، يستلم العربون والدفعات، يسلّم ويستلم الفساتين، يضيف العملاء، ويشوف عمولته بس. السعر بيتاخد من الفستان والخصم في حدود النسبة المسموحة.</p></div>';
+ h+='<button class="btn" style="width:100%;margin-top:14px" onclick="doLogout()">'+ic('out',18)+'تسجيل خروج</button>';
+ return h}
+function saveSettings(e){e.preventDefault();var f=e.target;var o={shop:f.shop.value,rate:Number(f.rate.value)/100,maxDisc:Number(f.maxDisc.value)/100,buffer:f.buffer.value,wa:f.wa.value};run('appSaveSettings',[o],function(){toast('اتحفظت الإعدادات ✓');draw()})}
+function vUserForm(){var u=null;(D.users||[]).forEach(function(x){if(x.name===V.u)u=x});u=u||{active:true,role:'موظف'};
+ return hdr(u.name?'تعديل '+esc(u.name):'مستخدم جديد',"go('settings')")+'<form class="card stack" style="margin-top:16px" onsubmit="saveUser(event)"><label class="f">الاسم *<input name="name" required value="'+esc(u.name||'')+'"></label><div class="grid2"><label class="f">الدور<select name="role"><option'+(u.role==='موظف'?' selected':'')+'>موظف</option><option'+(u.role==='مدير'?' selected':'')+'>مدير</option></select></label><label class="f">الرقم السري (6 أرقام) *<input name="pin" inputmode="numeric" pattern="\\d{6}" maxlength="6" required value="'+esc(u.pin||'')+'"></label></div><label class="f">نسبة عمولة خاصة % (فاضي = الافتراضية)<input name="rate" type="number" inputmode="decimal" step="0.1" min="0" max="100" value="'+(u.rate!=null?Math.round(u.rate*1000)/10:'')+'"></label><label class="row" style="min-height:44px;font-size:15px"><input type="checkbox" name="active" style="width:22px;height:22px"'+(u.active?' checked':'')+'> نشط (يقدر يدخل التطبيق)</label><button class="btn pri" type="submit">حفظ</button><button class="btn" type="button" onclick="var f=this.form;f.pin.value=String(100000+Math.floor(Math.random()*900000))">رقم سري عشوائي</button></form><p class="sub" style="margin-top:10px">تغيير الرقم السري أو إيقاف المستخدم بيخرّجه من التطبيق على طول.</p>'}
+function saveUser(e){e.preventDefault();var f=e.target;var o={orig:V.u||'',name:f.name.value,role:f.role.value,pin:f.pin.value.trim(),rate:f.rate.value===''?'':Number(f.rate.value)/100,active:f.active.checked};run('appSaveUser',[o],function(){toast('اتحفظ ✓');go('settings')})}
+
+/* ---------- حسابي (الموظف) ---------- */
+function vMe(){var me=D.me.name,m=D.today.slice(0,7);var mine=D.bookings.filter(function(b){return b.staff===me&&b.status!==ST.CANCEL});var mb=mine.filter(function(b){return monthOf(b.pickup)===m});
+ var all=mine.filter(function(b){return b.remaining<=0}).reduce(function(x,b){return x+b.commission},0),out=D.expenses.reduce(function(x,e){return x+e.amount},0);
+ var rate=null;D.settings.staff.forEach(function(s){if(s.name===me)rate=s.rate});if(rate==null)rate=D.settings.rate;
+ var h='<div class="between"><div class="col"><h1>'+esc(me)+'</h1><span class="sub">موظف · عمولة '+Math.round(rate*1000)/10+'%</span></div></div>';
+ h+='<div class="card" style="margin-top:14px"><div class="kv"><span>حجوزاتي الشهر ده</span><b>'+mb.length+' · '+money(mb.reduce(function(x,b){return x+b.net},0))+'</b></div><div class="kv"><span>عمولتي الشهر ده</span><b class="money">'+money(mb.reduce(function(x,b){return x+b.commission},0))+'</b></div><div class="kv"><span>المستحق لي (اتحصّل بالكامل)</span><b class="money">'+money(all)+'</b></div><div class="kv"><span>اتصرف لي</span><b class="money">'+money(out)+'</b></div><div class="kv"><span><b>الباقي لي</b></span><b class="money" style="color:var(--ac)">'+money(all-out)+'</b></div></div>';
+ h+=sec('حجوزاتي',mine.length?'<div class="stack">'+mine.sort(function(a,b){return a.pickup<b.pickup?1:-1}).slice(0,30).map(function(b){return bkRow(b)}).join('')+'</div>':'<div class="card empty">مفيش حجوزات باسمك لسه</div>');
+ h+='<button class="btn" style="width:100%;margin-top:16px" onclick="doLogout()">'+ic('out',18)+'تسجيل خروج</button>';
+ return h}
+
+load();
+</script>
+
+<div id="inst" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;background:#241C21;color:#fff;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.7"><button aria-label="إغلاق" onclick="closeInst()" style="position:absolute;top:4px;left:6px;width:40px;height:40px;background:none;border:0;color:#fff;font-size:22px">×</button><span id="instTxt">نزّل التطبيق على موبايلك علشان يفتح بأيقونة زي أي تطبيق.</span><button id="instBtn" onclick="doInstall()" style="display:block;width:100%;margin-top:10px;background:#6E3459;color:#fff;border:0;border-radius:10px;padding:12px;font-weight:700">تثبيت التطبيق</button></div>
+<script>
+var deferredI=null,standaloneI=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,closedI=lsGet('instClosed')==='1';
+function closeInst(){document.getElementById('inst').style.display='none';lsSet('instClosed','1')}
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredI=e;if(!standaloneI&&!closedI)document.getElementById('inst').style.display='block'});
+function doInstall(){if(!deferredI)return;deferredI.prompt();deferredI.userChoice.then(function(){deferredI=null;document.getElementById('inst').style.display='none'})}
 window.addEventListener('appinstalled',function(){document.getElementById('inst').style.display='none'});
-if(!standalone&&!dismissed&&/iphone|ipad|ipod/i.test(navigator.userAgent)){setTimeout(function(){document.getElementById('instTxt').textContent='علشان تنزّل التطبيق على الآيفون: دوس زرار المشاركة (المربع اللي فيه سهم) تحت، وبعدين «إضافة إلى الشاشة الرئيسية» Add to Home Screen.';document.getElementById('instBtn').style.display='none';document.getElementById('inst').style.display='block'},4000)}
+if(!standaloneI&&!closedI&&/iphone|ipad|ipod/i.test(navigator.userAgent)){setTimeout(function(){document.getElementById('instTxt').textContent='علشان تنزّل التطبيق على الآيفون: دوس زرار المشاركة ⬆️ تحت، وبعدين «إضافة إلى الشاشة الرئيسية» Add to Home Screen.';document.getElementById('instBtn').style.display='none';document.getElementById('inst').style.display='block'},4000)}
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){})}
 </script>
 </body>
