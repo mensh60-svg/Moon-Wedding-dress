@@ -274,6 +274,7 @@ nav.bar button svg{position:relative}
 #ptr{position:fixed;top:0;left:50%;transform:translate(-50%,-60px);z-index:45;width:44px;height:44px;border-radius:50%;background:var(--surface);box-shadow:var(--sh2);display:flex;align-items:center;justify-content:center;color:var(--ac);transition:transform .2s ease;pointer-events:none}
 #ptr.spin svg{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.dev{text-align:center;font-size:12px;color:var(--mute);margin:26px 8px 6px;line-height:1.7;letter-spacing:.2px}
 /* وضع الخصوصية: إخفاء الأرصدة */
 html.priv .money,html.priv .kpi b,html.priv .hb .v,html.priv .chart svg text,html.priv .chart .tip,html.priv details.tbl td.n{filter:blur(7px);user-select:none;transition:filter .2s}
 html.priv .stat b.money{filter:blur(9px)}
@@ -709,6 +710,8 @@ function aiVoice(){if(!SRC)return toast('المتصفح ده مش بيدعم ا�
  AIREC=r;var m=$('aiMic');if(m)m.classList.add('rec');try{r.start()}catch(e){AIREC=null;if(m)m.classList.remove('rec')}}
 
 /* ===================== الإصدار 10 ===================== */
+var DEVTXT='Moon Atelier System · تصميم وتطوير Ahmed Menshawy · © '+new Date().getFullYear()+' جميع الحقوق محفوظة';
+function devCredit(){return '<p class="dev">'+esc(DEVTXT)+'</p>'}
 function isPriv(){return document.documentElement.classList.contains('priv')}
 function togglePriv(){var p=!isPriv();document.documentElement.classList.toggle('priv',p);lsSet('priv',p?'1':null);toast(p?'الأرصدة مخفية 🔒':'الأرصدة ظاهرة');draw()}
 function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
@@ -729,7 +732,7 @@ function busy(on,t){var b=$('busy');b.textContent=t||'جاري الحفظ...';b.
 function run(fn,args,ok,msg){busy(true,msg);args=args||[];if(fn!=='appLogin')args=[TOKEN].concat(args);var r=google.script.run.withSuccessHandler(function(res){busy(false);if(res&&res.dresses)D=res;else if(res&&res.data)D=res.data;if(res&&(res.dresses||res.data))cacheD();if(ok)ok(res)}).withFailureHandler(function(e){busy(false);var t=(e&&e.message||String(e)).replace(/^Exception: /,'').replace(/^Error: /,'');if(t.indexOf('AUTH')===0){logoutLocal();toast('سجّل دخول تاني');return}toast(t);if(!D&&TOKEN)setH($('app'),'<div class="alert">'+esc(t)+'</div><button class="btn pri" style="width:100%;margin-top:12px" onclick="load()">جرّب تاني</button>')});r[fn].apply(r,args)}
 function logoutLocal(){lsSet('shop_cache',null);AI={m:[],act:null};var af=$('aiFab');if(af)af.style.display='none';TOKEN=null;lsSet('shop_token',null);D=null;V={s:'home'};showLogin()}
 function doLogout(){var t=TOKEN;logoutLocal();if(t)google.script.run.appLogout(t)}
-function showLogin(){setH($('nav'),'');$('fab').style.display='none';setH($('app'),'<div style="min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:18px"><div style="text-align:center"><div class="logo" style="margin:0 auto 12px;width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#D9B259,#8A6516);display:flex;align-items:center;justify-content:center">'+ic('moon',34,'#fff')+'</div><h1 class="gold" style="font-size:26px">Moon Wedding dress</h1><h2 style="margin-top:10px">تسجيل الدخول</h2><p class="sub">اكتب الرقم السري بتاعك (6 أرقام)</p></div><form class="card stack" onsubmit="doLogin(event)"><label class="f">الرقم السري<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" style="text-align:center;font-size:24px;letter-spacing:8px" required></label><button class="btn pri" type="submit">دخول</button></form><p class="sub" style="text-align:center">الرقم السري بيديهولك مدير المحل</p></div>');setTimeout(function(){var p=$('pin');if(p)p.focus()},80)}
+function showLogin(){setTimeout(function(){var a=$('app');if(a&&!a.querySelector('.dev')){var p=document.createElement('p');p.className='dev';p.textContent=DEVTXT;a.appendChild(p)}},0);setH($('nav'),'');$('fab').style.display='none';setH($('app'),'<div style="min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:18px"><div style="text-align:center"><div class="logo" style="margin:0 auto 12px;width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#D9B259,#8A6516);display:flex;align-items:center;justify-content:center">'+ic('moon',34,'#fff')+'</div><h1 class="gold" style="font-size:26px">Moon Wedding dress</h1><h2 style="margin-top:10px">تسجيل الدخول</h2><p class="sub">اكتب الرقم السري بتاعك (6 أرقام)</p></div><form class="card stack" onsubmit="doLogin(event)"><label class="f">الرقم السري<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" style="text-align:center;font-size:24px;letter-spacing:8px" required></label><button class="btn pri" type="submit">دخول</button></form><p class="sub" style="text-align:center">الرقم السري بيديهولك مدير المحل</p></div>');setTimeout(function(){var p=$('pin');if(p)p.focus()},80)}
 function doLogin(e){e.preventDefault();var p=$('pin').value.trim();run('appLogin',[p],function(r){TOKEN=r.token;lsSet('shop_token',TOKEN);load()},'جاري الدخول...')}
 function load(){if(TOKEN&&!D){var cd=readCacheD();if(cd){D=cd;if(!MONTH)MONTH=D.today.slice(0,7);draw();refreshQuiet();try{window.top.postMessage('shop-ready','*')}catch(e){}return}}
  if(!TOKEN){showLogin();try{window.top.postMessage('shop-ready','*')}catch(e){}return}run('appData',[],function(){if(!MONTH)MONTH=D.today.slice(0,7);draw();try{window.top.postMessage('shop-ready','*')}catch(e){}},'جاري التحميل...')}
@@ -990,6 +993,7 @@ function vSettings(){var s=D.settings;
  h+='<div class="card" style="margin-top:16px"><b>الصلاحيات</b><p class="sub" style="margin:6px 0 0;line-height:1.8"><b>المدير:</b> كل حاجة: الحسابات والمصروفات والعمولات، تعديل الحجوزات والأسعار، الإلغاء ورد الفلوس، الفساتين والإعدادات والمستخدمين.<br><b>الموظف:</b> يشوف الفساتين المتاحة، يحجز، يستلم العربون والدفعات، يسلّم ويستلم الفساتين، يضيف العملاء، ويشوف عمولته ومرتبه. تقدر تدي أي موظف صلاحيات زيادة (إلغاء، تعديل، حذف، رد فلوس، تغيير السعر، خصم بدون حد، الفساتين، المصروفات) من صفحة المستخدم.</p></div>';
  h+='<button class="btn" style="width:100%;margin-top:14px" onclick="go(\'guide\')">'+ic('doc',18)+'دليل التطبيق (خريطة التطبيق)</button>';
  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="doLogout()">'+ic('out',18)+'تسجيل خروج</button>';
+ h+=devCredit();
  return h}
 function saveSettings(e){e.preventDefault();var f=e.target;var o={shop:f.shop.value,rate:Number(f.rate.value)/100,maxDisc:Number(f.maxDisc.value)/100,buffer:f.buffer.value,wa:f.wa.value,repEmail:f.repEmail.value.trim(),depMonths:f.depMonths.value,openingCash:f.openingCash.value,geminiKey:f.geminiKey.value.trim(),geminiClear:!!(f.geminiClear&&f.geminiClear.checked)};run('appSaveSettings',[o],function(){toast('اتحفظت الإعدادات ✓');draw()})}
 function vUserForm(){var u=null;(D.users||[]).forEach(function(x){if(x.name===V.u)u=x});u=u||{active:true,role:'موظف'};
@@ -997,7 +1001,8 @@ function vUserForm(){var u=null;(D.users||[]).forEach(function(x){if(x.name===V.
 function saveUser(e){e.preventDefault();var f=e.target;var o={orig:V.u||'',name:f.name.value,role:f.role.value,pin:f.pin.value.trim(),rate:f.rate.value===''?'':Number(f.rate.value)/100,active:f.active.checked,salary:f.salary.value,perms:[].slice.call(f.querySelectorAll('input[name=perm]:checked')).map(function(x){return x.value})};run('appSaveUser',[o],function(){toast('اتحفظ ✓');go('settings')})}
 
 /* ---------- حسابي (الموظف) ---------- */
-function vGuide(){var who=admin()?'owner':'staff';return hdr(admin()?'دليل التطبيق (المدير)':'دليل التطبيق',"go('"+(admin()?'settings':'money')+"')")+'<p class="sub" style="margin:12px 0 0">دوس على أي سطر علشان تشوف الخطوات.</p><div class="guide '+who+'">'+GUIDE[who]+'</div>'}
+function vGuide(){return vGuide0()+devCredit()}
+function vGuide0(){var who=admin()?'owner':'staff';return hdr(admin()?'دليل التطبيق (المدير)':'دليل التطبيق',"go('"+(admin()?'settings':'money')+"')")+'<p class="sub" style="margin:12px 0 0">دوس على أي سطر علشان تشوف الخطوات.</p><div class="guide '+who+'">'+GUIDE[who]+'</div>'}
 function vMe(){var me=D.me.name,m=D.today.slice(0,7);var mine=D.bookings.filter(function(b){return b.staff===me&&b.status!==ST.CANCEL});var mb=mine.filter(function(b){return monthOf(b.pickup)===m});
  var all=D.bookings.filter(function(b){return b.staff===me}).reduce(function(x,b){return x+b.commission},0),out=D.expenses.reduce(function(x,e){return x+e.amount},0);
  var rate=null;D.settings.staff.forEach(function(s){if(s.name===me)rate=s.rate});if(rate==null)rate=D.settings.rate;
@@ -1008,6 +1013,7 @@ function vMe(){var me=D.me.name,m=D.today.slice(0,7);var mine=D.bookings.filter(
  h+=sec('حجوزاتي',mine.length?'<div class="stack">'+mine.sort(function(a,b){return a.pickup<b.pickup?1:-1}).slice(0,30).map(function(b){return bkRow(b)}).join('')+'</div>':'<div class="card empty">مفيش حجوزات باسمك لسه</div>');
  h+='<button class="btn" style="width:100%;margin-top:16px" onclick="go(\'guide\')">'+ic('doc',18)+'دليل التطبيق</button>';
  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="doLogout()">'+ic('out',18)+'تسجيل خروج</button>';
+ h+=devCredit();
  return h}
 
 /* ---------- المخزن ---------- */
