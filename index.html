@@ -712,6 +712,8 @@ function aiVoice(){if(!SRC)return toast('المتصفح ده مش بيدعم ا�
 /* ===================== الإصدار 10 ===================== */
 var DEVTXT='Moon Atelier System · تصميم وتطوير Ahmed Menshawy · © '+new Date().getFullYear()+' جميع الحقوق محفوظة';
 function devCredit(){return '<p class="dev">'+esc(DEVTXT)+'</p>'}
+// فتح الفستان على طول من الباركود (?d=DR-0001)
+function deepLink(){try{var u=new URL(location.href),c=u.searchParams.get('d');if(!c||!D)return;u.searchParams.delete('d');history.replaceState(null,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams:'')+u.hash);var v=c.trim().toUpperCase(),d=dressBy(v)||dressBy('DR-'+v.replace(/^DR-?/,'').padStart(4,'0'));if(d)go('dress',{c:d.code});else toast('الكود '+c+' مش متسجل')}catch(e){}}
 function isPriv(){return document.documentElement.classList.contains('priv')}
 function togglePriv(){var p=!isPriv();document.documentElement.classList.toggle('priv',p);lsSet('priv',p?'1':null);toast(p?'الأرصدة مخفية 🔒':'الأرصدة ظاهرة');draw()}
 function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
@@ -734,8 +736,8 @@ function logoutLocal(){lsSet('shop_cache',null);AI={m:[],act:null};var af=$('aiF
 function doLogout(){var t=TOKEN;logoutLocal();if(t)google.script.run.appLogout(t)}
 function showLogin(){setTimeout(function(){var a=$('app');if(a&&!a.querySelector('.dev')){var p=document.createElement('p');p.className='dev';p.textContent=DEVTXT;a.appendChild(p)}},0);setH($('nav'),'');$('fab').style.display='none';setH($('app'),'<div style="min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:18px"><div style="text-align:center"><div class="logo" style="margin:0 auto 12px;width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#D9B259,#8A6516);display:flex;align-items:center;justify-content:center">'+ic('moon',34,'#fff')+'</div><h1 class="gold" style="font-size:26px">Moon Wedding dress</h1><h2 style="margin-top:10px">تسجيل الدخول</h2><p class="sub">اكتب الرقم السري بتاعك (6 أرقام)</p></div><form class="card stack" onsubmit="doLogin(event)"><label class="f">الرقم السري<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" style="text-align:center;font-size:24px;letter-spacing:8px" required></label><button class="btn pri" type="submit">دخول</button></form><p class="sub" style="text-align:center">الرقم السري بيديهولك مدير المحل</p></div>');setTimeout(function(){var p=$('pin');if(p)p.focus()},80)}
 function doLogin(e){e.preventDefault();var p=$('pin').value.trim();run('appLogin',[p],function(r){TOKEN=r.token;lsSet('shop_token',TOKEN);load()},'جاري الدخول...')}
-function load(){if(TOKEN&&!D){var cd=readCacheD();if(cd){D=cd;if(!MONTH)MONTH=D.today.slice(0,7);draw();refreshQuiet();try{window.top.postMessage('shop-ready','*')}catch(e){}return}}
- if(!TOKEN){showLogin();try{window.top.postMessage('shop-ready','*')}catch(e){}return}run('appData',[],function(){if(!MONTH)MONTH=D.today.slice(0,7);draw();try{window.top.postMessage('shop-ready','*')}catch(e){}},'جاري التحميل...')}
+function load(){if(TOKEN&&!D){var cd=readCacheD();if(cd){D=cd;if(!MONTH)MONTH=D.today.slice(0,7);draw();deepLink();refreshQuiet();try{window.top.postMessage('shop-ready','*')}catch(e){}return}}
+ if(!TOKEN){showLogin();try{window.top.postMessage('shop-ready','*')}catch(e){}return}run('appData',[],function(){if(!MONTH)MONTH=D.today.slice(0,7);draw();deepLink();try{window.top.postMessage('shop-ready','*')}catch(e){}},'جاري التحميل...')}
 function go(s,x){V={s:s};if(x)for(var k in x)V[k]=x[k];closeSheet();draw();window.scrollTo(0,0)}
 
 /* ---------- تواريخ ---------- */
@@ -896,7 +898,7 @@ function shrink(file,ok,bad){if(!/^image\//.test(file.type||'image/'))return bad
 
 /* ---------- مسح الباركود ---------- */
 function scan(to){SCAN_TO=to;if(!('BarcodeDetector' in window)){toast('مسح الباركود مش مدعوم على الموبايل ده. اكتب الكود أو استخدم قارئ باركود.');var i=$('dq')||$('nbDq');if(i)i.focus();return}$('scanFile').value='';$('scanFile').click()}
-function scanPicked(inp){var f=inp.files&&inp.files[0];if(!f)return;busy(true,'بقرا الباركود...');createImageBitmap(f).then(function(bmp){return new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13']}).detect(bmp)}).then(function(r){busy(false);if(!r||!r.length){toast('مالقيتش باركود في الصورة. قرّب الكاميرا وجرّب تاني.');return}var v=String(r[0].rawValue||'').trim().toUpperCase(),d=dressBy(v);if(!d){toast('الكود '+v+' مش متسجل');return}if(SCAN_TO==='book')nbPickDress(d.code);else go('dress',{c:d.code})}).catch(function(){busy(false);toast('معرفتش أقرا الصورة. جرّب تاني أو اكتب الكود.')})}
+function scanPicked(inp){var f=inp.files&&inp.files[0];if(!f)return;busy(true,'بقرا الباركود...');createImageBitmap(f).then(function(bmp){return new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13']}).detect(bmp)}).then(function(r){busy(false);if(!r||!r.length){toast('مالقيتش باركود في الصورة. قرّب الكاميرا وجرّب تاني.');return}var raw=String(r[0].rawValue||'').trim(),mm=raw.match(/[?&]d=([^&#]+)/),v=(mm?decodeURIComponent(mm[1]):raw).trim().toUpperCase(),d=dressBy(v);if(!d){toast('الكود '+v+' مش متسجل');return}if(SCAN_TO==='book')nbPickDress(d.code);else go('dress',{c:d.code})}).catch(function(){busy(false);toast('معرفتش أقرا الصورة. جرّب تاني أو اكتب الكود.')})}
 
 /* ---------- حجز جديد ---------- */
 function startBooking(dress){NB={dress:dress||'',cust:'',newCust:false,q:'',dq:''};go('newBooking')}
