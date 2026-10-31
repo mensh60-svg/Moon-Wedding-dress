@@ -61,7 +61,7 @@ var tries=0;(function go(){fetch(SHOP_API,{method:'POST',credentials:'omit',redi
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Tajawal','IBM Plex Sans Arabic',Tahoma,sans-serif;font-size:15px;-webkit-tap-highlight-color:transparent}
 body{background:radial-gradient(1200px 500px at 50% -10%,var(--glow) 0%,var(--bg) 55%) fixed}
 button,input,select,textarea{font:inherit;color:inherit}
-.wrap{max-width:600px;margin:0 auto;padding:18px 16px 120px}
+.wrap{max-width:600px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 120px}
 h1{margin:0;font-size:23px;font-weight:800;letter-spacing:.1px}
 h2{margin:0;font-size:17px;font-weight:700}
 .sub{font-size:13px;color:var(--mute)}
@@ -217,7 +217,9 @@ details.tbl table{width:100%;border-collapse:collapse}details.tbl td,details.tbl
 .perms{display:grid;grid-template-columns:1fr;gap:6px}.perms label{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line2);border-radius:12px;font-weight:600;font-size:14px;background:var(--field)}
 .perms input{width:20px;height:20px;accent-color:var(--ac)}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--ac2);color:var(--ac);border:1px solid var(--gold2);cursor:pointer}
-.tot{background:linear-gradient(135deg,#FFFBF0,#F7EEDA);border:1px solid var(--gold2)}
+.tot{background:linear-gradient(135deg,var(--soft),var(--soft2));border:1px solid var(--gold2);color:var(--ink)}
+.kv.tot{border-radius:12px;padding:10px;margin:4px 0}
+.kv b{white-space:nowrap}
 h1{font-family:'Tajawal','IBM Plex Sans Arabic',sans-serif}
 .card,.stat,.kpi,.chart,.btn,.chip{will-change:auto}
 
@@ -242,12 +244,12 @@ h1{font-family:'Tajawal','IBM Plex Sans Arabic',sans-serif}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .top .brand{min-width:0;flex:1}
 .top .brand .col{min-width:0}
-.top h1.gold{font-size:20px;line-height:1.2;direction:ltr;text-align:right;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.top h1.gold{font-size:22px;line-height:1.25;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .brand .tagl{font-size:11.5px;letter-spacing:.6px;color:var(--mute);font-weight:500}
 .acts{display:flex;gap:6px;flex-shrink:0}
 .acts{gap:4px}.acts .ibtn{width:38px;height:38px}
-.hello{margin-top:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
-.hello b{font-size:19px;font-weight:800;display:block}
+.hello{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}.hello .col{min-width:0}
+.hello b{font-size:17px;font-weight:800;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hello .sub{font-size:13px}
 .hello .datechip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;padding:6px 10px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--sh)}
 .hello .datechip b{font-size:20px;line-height:1;color:var(--ac)}.hello .datechip span{font-size:11px;color:var(--mute)}
@@ -712,7 +714,7 @@ function togglePriv(){var p=!isPriv();document.documentElement.classList.toggle(
 function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
 function toggleTheme(){var d=!isDark();if(d)document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');lsSet('theme',d?'dark':'light');var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',d?'#13100B':'#FBF8F2');draw()}
 function commBal(name){var e=D.bookings.filter(function(b){return b.staff===name}).reduce(function(x,b){return x+(b.commission||0)},0);var p=D.expenses.filter(function(x){return x.cat==='عمولات الموظفين'&&x.staff===name}).reduce(function(x,y){return x+y.amount},0);return e-p}
-function totCard(sal,comm,adminView){var t=sal+comm;return '<div class="kv"><span>باقي المرتب (بعد المكافآت والخصومات والسلف)</span><b class="money">'+money(sal)+'</b></div><div class="kv"><span>باقي العمولات</span><b class="money">'+money(comm)+'</b></div><div class="kv tot"><span><b>'+(adminView?'إجمالي المستحق له':'إجمالي المستحق ليا')+'</b></span><b class="money" style="font-size:18px;color:'+(t>0?'var(--ac)':t<0?'var(--red)':'var(--grn)')+'">'+money(t)+'</b></div>'+(t<0?'<p class="sub" style="margin:4px 0 0">بالسالب يعني '+(adminView?'عليه':'عليا')+' للمحل (سلفة أو عمولة اتخصمت).</p>':'')}
+function totCard(sal,comm,adminView){var t=sal+comm;return '<div class="kv"><span>باقي المرتب</span><b class="money">'+money(sal)+'</b></div><div class="kv"><span>باقي العمولات</span><b class="money">'+money(comm)+'</b></div><div class="kv tot"><span><b>'+(adminView?'إجمالي المستحق له':'إجمالي المستحق ليا')+'</b></span><b class="money" style="font-size:18px;color:'+(t>0?'var(--ac)':t<0?'var(--red)':'var(--grn)')+'">'+money(t)+'</b></div>'+(t<0?'<p class="sub" style="margin:4px 0 0">بالسالب يعني '+(adminView?'عليه':'عليا')+' للمحل (سلفة أو عمولة اتخصمت).</p>':'')}
 /* ---------- شد الصفحة لتحت للتحديث ---------- */
 (function(){var y0=null,dy=0,busyP=false;var el=function(){return document.getElementById('ptr')};
  function blocked(t){return !D||busyP||(t&&t.closest&&t.closest('.chat,.ailog,.sheet,.lb,textarea,.pick'))||$('sheetHost').innerHTML}
@@ -789,9 +791,9 @@ function vHome(){var B=D.bookings;
  var mon=D.today.slice(0,7),col=D.payments.filter(function(p){return monthOf(p.date)===mon}).reduce(function(s,p){return s+p.net},0);
  var free=D.dresses.filter(function(d){return dressState(d).k==='free'}).length;
  var hr=new Date().getHours(),dp=D.today.split('-'),MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
- var h='<div class="top"><div class="brand"><div class="logo">'+ic('moon',22,'#fff')+'</div><div class="col"><h1 class="gold">'+esc(D.settings.shop)+'</h1><span class="tagl">BRIDAL ATELIER</span></div></div><div class="acts"><button class="ibtn round hbtn" aria-label="الرسائل" onclick="go(\'chat\')">'+ic('chat',19)+(chatUnread()?'<span class="badge">'+chatUnread()+'</span>':'')+'</button><button class="ibtn round" aria-label="'+(isPriv()?'إظهار الأرصدة':'إخفاء الأرصدة')+'" onclick="togglePriv()">'+ic(isPriv()?'eyeoff':'eye',19)+'</button><button class="ibtn round" aria-label="الوضع الليلي والنهاري" onclick="toggleTheme()">'+ic(isDark()?'sun':'night',19)+'</button><button class="ibtn round" aria-label="دليل التطبيق" onclick="go(\'guide\')">'+ic('doc',19)+'</button></div></div>';
- h+='<div class="hello"><div class="col"><b>'+(hr<12?'صباح الخير':'مساء الخير')+'، '+esc(D.me.name)+' 🌙</b><span class="sub">'+esc(D.dayName)+' · '+(+dp[2])+' '+MN[+dp[1]-1]+' '+dp[0]+'</span></div><div class="datechip"><b>'+(+dp[2])+'</b><span>'+MN[+dp[1]-1]+'</span></div></div>';
- h+='<div class="search" style="cursor:text" onclick="go(\'dresses\');setTimeout(function(){var i=$(\'dq\');if(i)i.focus()},60)">'+ic('search',18)+'<span class="sub" style="flex:1">دوّر على فستان بالكود أو الوصف</span><button class="ibtn" style="border:0" aria-label="بحث بالتاريخ" onclick="event.stopPropagation();askAvail()">'+ic('cal')+'</button><button class="ibtn" style="border:0" aria-label="مسح باركود" onclick="event.stopPropagation();scan(\'dress\')">'+ic('scan')+'</button></div><div style="margin-top:8px"><button class="pill" onclick="askAvail()">'+ic('cal',15)+'دوّر بالتاريخ: إيه المتاح وإيه المحجوز؟</button></div>';
+ var h='<div class="top"><div class="brand"><div class="logo">'+ic('moon',22,'#fff')+'</div><div class="col"><h1 class="gold">'+esc(D.settings.shop)+'</h1><span class="tagl">BRIDAL ATELIER</span></div></div></div>';
+ h+='<div class="hello"><div class="col"><b>'+(hr<12?'صباح الخير':'مساء الخير')+'، '+esc(D.me.name)+'</b><span class="sub">'+esc(D.dayName)+' · '+(+dp[2])+' '+MN[+dp[1]-1]+' '+dp[0]+'</span></div><div class="acts"><button class="ibtn round hbtn" aria-label="الرسائل" onclick="go(\'chat\')">'+ic('chat',19)+(chatUnread()?'<span class="badge">'+chatUnread()+'</span>':'')+'</button><button class="ibtn round" aria-label="'+(isPriv()?'إظهار الأرصدة':'إخفاء الأرصدة')+'" onclick="togglePriv()">'+ic(isPriv()?'eyeoff':'eye',19)+'</button><button class="ibtn round" aria-label="الوضع الليلي والنهاري" onclick="toggleTheme()">'+ic(isDark()?'sun':'night',19)+'</button><button class="ibtn round" aria-label="دليل التطبيق" onclick="go(\'guide\')">'+ic('doc',19)+'</button></div></div>';
+ h+='<div class="search" style="cursor:text" onclick="go(\'dresses\');setTimeout(function(){var i=$(\'dq\');if(i)i.focus()},60)">'+ic('search',18)+'<span class="sub" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">دوّر على فستان</span><button class="ibtn" style="border:0" aria-label="بحث بالتاريخ" onclick="event.stopPropagation();askAvail()">'+ic('cal')+'</button><button class="ibtn" style="border:0" aria-label="مسح باركود" onclick="event.stopPropagation();scan(\'dress\')">'+ic('scan')+'</button></div><div style="margin-top:8px"><button class="pill" onclick="askAvail()">'+ic('cal',15)+'دوّر بالتاريخ: إيه المتاح وإيه المحجوز؟</button></div>';
  h+='<div class="stats"><button class="stat pri" onclick="F.f=\'up\';go(\'bookings\')"><b>'+pick.filter(function(b){return b.pickup===D.today}).length+'</b><span>استلامات النهارده</span></button><button class="stat" onclick="F.f=\'out\';go(\'bookings\')"><b>'+rets.filter(function(b){return b.ret===D.today}).length+'</b><span>إرجاعات النهارده</span></button><button class="stat'+(late.length?' bad':'')+'" onclick="F.f=\'late\';go(\'bookings\')"><b>'+late.length+'</b><span>متأخرة عند العملاء</span></button>'+(admin()?'<button class="stat" onclick="F.f=\'due\';go(\'bookings\')"><b class="money">'+money(recv)+'</b><span>فلوس لسه ماتحصلتش</span></button>':'')+(admin()?'<button class="stat" onclick="go(\'money\')"><b class="money">'+money(col)+'</b><span>المحصّل الشهر ده</span></button>':'')+'<button class="stat" onclick="FD.f=\'free\';go(\'dresses\')"><b>'+free+' / '+D.dresses.length+'</b><span>فساتين متاحة</span></button></div>';
  var low=(D.stock||[]).filter(function(x){return x.qty<=x.min});
  if(low.length)h+='<button class="alert lnk" style="margin-top:14px;width:100%" onclick="FS.t=\'sup\';go(\'stock\')">'+ic('box',20,'#8E3A32')+'<div class="col"><b>'+low.length+' صنف في المخزن قرب يخلص أو خلص</b><span>'+esc(low.slice(0,3).map(function(x){return x.name}).join('، '))+(low.length>3?'…':'')+'</span></div></button>';
