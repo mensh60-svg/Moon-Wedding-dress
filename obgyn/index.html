@@ -105,6 +105,7 @@ button.card:hover{border-color:var(--gold2)}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .qcard{border:1.5px solid var(--gold2)}.qn{display:flex;flex-direction:column;align-items:center;padding:8px;border-radius:12px;background:var(--soft)}.qn b{font-size:22px;color:var(--ac)}.qn span{font-size:12px;color:var(--mute)}.qn.in b{color:var(--org)}.qn.ok b{color:var(--grn)}
 .qbig{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;background:var(--blubg);color:var(--blu);flex-shrink:0}.qbig.in{background:var(--orgbg);color:var(--org)}.qbig.ok{background:var(--grnbg);color:var(--grn)}
+.vit{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;justify-content:center}.vit span{font-size:12px;padding:2px 8px;border-radius:8px;background:var(--blubg);color:var(--blu);font-weight:700}.card.row .vit{justify-content:flex-start}
 .room{margin-top:12px;padding:18px;border-radius:20px;background:linear-gradient(160deg,var(--soft),var(--ac2));border:1.5px solid var(--gold2);display:flex;flex-direction:column;align-items:center;text-align:center}.rnum{font-size:72px;font-weight:800;line-height:1.1;color:var(--ac)}.rname{font-size:22px}
 .kbtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}.kbtn b{font-size:17px}.kbtn.on{border-color:var(--ac);background:var(--ac2);box-shadow:0 0 0 2px var(--gold2)}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -1542,6 +1543,7 @@ function printRx(r){var v=(D.visits||[]).filter(function(x){return x.r===r})[0];
  w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset=utf-8><title>روشتة</title><style>body{font-family:Tahoma,Arial;margin:32px;color:#222}h1{margin:0;color:#7B2D5B;font-size:22px}.hd{display:flex;justify-content:space-between;border-bottom:2px solid #7B2D5B;padding-bottom:10px;margin-bottom:18px}.rx{font-size:28px;color:#7B2D5B;font-weight:bold}pre{font-family:inherit;font-size:16px;line-height:2;white-space:pre-wrap}.ft{margin-top:60px;border-top:1px solid #ccc;padding-top:8px;font-size:12px;color:#666}</style></head><body><div class="hd"><div><h1>'+esc(D.settings.shop)+'</h1><div>'+esc(v.doctor||'')+'</div></div><div style="text-align:left">'+esc(v.date)+'<br>'+esc(D.settings.wa||'')+'</div></div><div><b>الاسم:</b> '+esc(c.name||'')+(v.ga?' &nbsp; <b>أسبوع الحمل:</b> '+esc(v.ga):'')+'</div><div class="rx" dir="ltr" style="text-align:left;margin:16px 0">℞</div><pre dir="auto">'+esc(v.rx)+'</pre><div class="ft">'+esc(v.ins||'')+'</div><script>setTimeout(function(){print()},300)<\/script><\/body><\/html>');w.document.close()}
 function vVisit(){var b=V.c?bookBy(V.c):null,cu=custBy(b?b.cust:V.p);if(!cu)return hdr('تسجيل كشف',"go('home')")+'<div class="empty">مش موجود</div>';var d=b?dressBy(b.dress)||{}:{};
  if(!VS||VS.k!==(V.c||V.p))VS={k:V.c||V.p,before:[],after:[],t:V.t||(d.type==='حمل وولادة'||/حمل/.test(d.desc||'')?'متابعة حمل':d.type==='سونار'?'سونار':/تبويض/.test(d.desc||'')?'متابعة تبويض':d.type==='عمليات'?'بعد عملية':'كشف')};
+ if(b&&!VS.f&&(b.vwt||b.vbp||b.vsug))VS.f={wt:b.vwt||'',bp:b.vbp||'',labs:b.vsug?'سكر: '+b.vsug:''};
  var t=VS.t,p=curPreg(cu.code),g=gaOf(p),nx=b&&d.interval?addD(D.today,d.interval):'';
  var h=hdr('تسجيل كشف',b?"go('booking',{c:'"+b.code+"'})":"go('customer',{c:'"+cu.code+"'})");
  h+='<div class="row" style="margin-top:14px">'+pAv(cu.name)+'<div class="col"><b>'+esc(cu.name)+'</b><span class="sub">'+esc(b?b.dressDesc:'بدون موعد')+(g?' · حامل '+gaTxt(g):'')+'</span></div></div>';
@@ -1618,7 +1620,7 @@ function vQueue(){var br=V.br||curBr(),date=V.day||D.today,Q=qList(br,date);
  var h=hdr('الدور',"go('home')");h+=brChips(br,'qBr');
  h+='<div class="between card" style="margin-top:12px;padding:6px"><button class="ibtn" style="border:0" aria-label="اليوم اللي قبله" onclick="V.day='+jsa(addD(date,-1))+';draw()">'+ic('back')+'</button><b>'+esc(nice(date))+'</b><button class="ibtn" style="border:0;transform:scaleX(-1)" aria-label="اليوم اللي بعده" onclick="V.day='+jsa(addD(date,1))+';draw()">'+ic('back')+'</button></div>';
  h+='<div class="grid2" style="margin-top:12px">'+(date===D.today&&Q.some(function(b){return b.status===ST.BOOKED})?'<button class="btn pri" onclick="callNext('+jsa(br)+')">'+ic('queue',18)+'نادي التالي</button>':'<span></span>')+'<button class="btn" onclick="startQueue('+jsa(date)+')">'+ic('plus',18)+'دور جديد</button></div>';
- h+=Q.length?'<div class="stack" style="margin-top:12px">'+Q.map(function(b){return '<button class="card row" onclick="go(\'booking\',{c:'+jsa(b.code)+'})"><div class="qbig'+(b.status===ST.OUT?' in':b.status===ST.BACK?' ok':'')+'">'+b.qno+'</div><div class="col" style="flex:1"><b>'+esc(b.name)+'</b><span class="sub">'+esc(b.dressDesc)+(b.freeWhy?' · مجاني':'')+'</span></div><div class="stack" style="gap:6px;align-items:flex-end">'+bookTag(b)+payTag(b)+'</div></button>'}).join('')+'</div>':'<div class="card empty" style="margin-top:12px">لسه محدش أخد دور</div>';
+ h+=Q.length?'<div class="stack" style="margin-top:12px">'+Q.map(function(b){return '<button class="card row" onclick="go(\'booking\',{c:'+jsa(b.code)+'})"><div class="qbig'+(b.status===ST.OUT?' in':b.status===ST.BACK?' ok':'')+'">'+b.qno+'</div><div class="col" style="flex:1"><b>'+esc(b.name)+'</b><span class="sub">'+esc(b.dressDesc)+(b.freeWhy?' · مجاني':'')+'</span>'+vitTags(b)+'</div><div class="stack" style="gap:6px;align-items:flex-end">'+bookTag(b)+payTag(b)+(b.status!==ST.BACK?'<span class="chip" role="button" onclick="event.stopPropagation();askVitals('+jsa(b.code)+')">قياسات</span>':'')+'</div></button>'}).join('')+'</div>':'<div class="card empty" style="margin-top:12px">لسه محدش أخد دور</div>';
  return h}
 function qBr(n){V.br=n;draw()}
 function startQueue(date){NB={queue:1,date:date||D.today,branch:curBr(),dress:(D.dresses.filter(function(d){return d.desc==='كشف نساء'})[0]||D.dresses[0]||{}).code||'',cust:'',newCust:false,q:'',dq:''};go('queueForm')}
@@ -1637,7 +1639,7 @@ function vQueueFormBase(){if(!NB||!NB.queue)startQueue();var c=NB.cust?custBy(NB
  setTimeout(function(){if($('nbCl'))nbCustList()},20);return h}
 function qfBr(n){NB.branch=n;draw()}
 function freeBox(){if(!can('discount'))return '';return '<label class="row" style="min-height:40px"><input type="checkbox" style="width:22px;height:22px"'+(NB.free?' checked':'')+' onchange="NB.free=this.checked;draw()"> حالة مجانية (من غير فلوس)</label>'+(NB.free?'<label class="f">السبب (اختياري)<input value="'+esc(NB.freeWhy||'')+'" oninput="NB.freeWhy=this.value" placeholder="ظروف، قريبة، متابعة مجانية…"></label>':'')}
-function saveQueue(){var o={dress:NB.dress,cust:NB.cust,branch:NB.branch,date:NB.date,free:!!NB.free,freeWhy:NB.freeWhy||''};if(!NB.free){o.price=$('nbPr').value;o.discount=$('nbDi').value;o.deposit=$('nbDe').value;o.method=$('nbMe').value}
+function saveQueue(){var o={dress:NB.dress,cust:NB.cust,branch:NB.branch,date:NB.date,free:!!NB.free,freeWhy:NB.freeWhy||'',wt:NB.wt||'',bp:NB.bp||'',sug:NB.sug||''};if(!NB.free){o.price=$('nbPr').value;o.discount=$('nbDi').value;o.deposit=$('nbDe').value;o.method=$('nbMe').value}
  if(!o.cust){if(!NB.newCust)return toast('اختار المريضة أو ضيف جديدة');o.newCust={name:$('ncN').value,phone:$('ncP').value};if(!o.newCust.name||!o.newCust.phone)return toast('اكتب الاسم والتليفون')}
  run('appQueue',[o],function(r){var b=bookBy(r.code);NB=null;toast('دور رقم '+(b?b.qno:'')+' ✓');go('queue',{br:o.branch,day:o.date})},'جاري التسجيل...')}
 
@@ -1671,7 +1673,7 @@ function drawB(){if(D&&(V.s==='queue'||V.s==='queueForm'||V.s==='agenda')){aiFab
 /* ===================== شاشة الدكتور + موظفين وحسابات كل عيادة ===================== */
 function curBr(){var L=BRS();if(!L.length)return '';if(D.me&&D.me.branch&&brBy(D.me.branch))return D.me.branch;var s=lsGet('obBranch');if(s&&brBy(s))return s;var t=L.filter(function(b){return brOpen(b,D.today)})[0];return (t||L[0]).name}
 var ROOM_T=null;
-function vRoom(){var br=V.br||curBr(),Q=qList(br,D.today),w=Q.filter(function(b){return b.status===ST.BOOKED}),inn=Q.filter(function(b){return b.status===ST.OUT}).pop(),done=Q.filter(function(b){return b.status===ST.BACK});
+function vRoomBase(){var br=V.br||curBr(),Q=qList(br,D.today),w=Q.filter(function(b){return b.status===ST.BOOKED}),inn=Q.filter(function(b){return b.status===ST.OUT}).pop(),done=Q.filter(function(b){return b.status===ST.BACK});
  var h=hdr('شاشة الدكتور',"go('home')",'<button class="ibtn round" aria-label="تحديث" onclick="roomRefresh(true)">'+ic('refresh',18)+'</button>');
  h+=brChips(br,'roomBr');
  h+='<div class="room"><span class="sub">جوه الكشف دلوقتي</span>'+(inn?'<div class="rnum">'+inn.qno+'</div><b class="rname">'+esc(inn.name)+'</b><span class="sub">'+esc(inn.dressDesc)+(inn.freeWhy?' · مجاني':'')+'</span>'+((custBy(inn.cust)||{}).notes?'<div class="alert" style="margin-top:8px;background:var(--ambbg);color:var(--amb)">'+ic('warn',16)+'<span>'+esc(custBy(inn.cust).notes)+'</span></div>':'')+'<div class="grid2" style="margin-top:12px;width:100%"><button class="btn" onclick="go(\'customer\',{c:'+jsa(inn.cust)+'})">'+ic('users',18)+'الملف</button><button class="btn" onclick="VS=null;go(\'visit\',{c:'+jsa(inn.code)+'})">'+ic('edit',18)+'تسجيل الكشف</button></div>':'<div class="rnum" style="opacity:.3">—</div><span class="sub">مفيش حد جوه</span>')+'</div>';
@@ -1692,12 +1694,26 @@ function vHome(){var h=vHomeQ();if(BRS().length&&(admin()||isDoc())){h=h.replace
   h=h.replace('<div class="stats">',sec('حسابات العيادات الشهر ده',rows)+'<div class="stats">')}
  return h}
 /* دور جديد: كشف ولا إعادة */
-function vQueueForm(){var h=vQueueFormBase(),K=D.dresses.filter(function(x){return x.tech!=='موقوفة'&&x.type==='كشف ومتابعة'});
+function vQueueFormK(){var h=vQueueFormBase(),K=D.dresses.filter(function(x){return x.tech!=='موقوفة'&&x.type==='كشف ومتابعة'});
  if(K.length){var big='<div class="grid2" style="margin-top:8px">'+K.slice(0,2).map(function(x){return '<button class="kbtn'+(x.code===NB.dress?' on':'')+'" onclick="NB.dress='+jsa(x.code)+';NB.price=null;NB.deposit=null;draw()"><b>'+esc(x.desc)+'</b><span class="money">'+money(x.price)+'</span></button>'}).join('')+'</div><details style="margin-top:8px"'+(K.slice(0,2).some(function(x){return x.code===NB.dress})?'':' open')+'><summary class="sub" style="cursor:pointer">خدمات تانية (سونار، تبويض…)</summary>';
   h=h.replace('<div style="margin-top:16px"><h2>نوع الكشف</h2></div><div class="chips" style="margin-top:8px">','<div style="margin-top:16px"><h2>كشف ولا إعادة؟</h2></div>'+big+'<div class="chips" style="margin-top:8px">');
   var k=h.indexOf('<div class="card stack" style="margin-top:12px">');if(k>0)h=h.slice(0,k)+'</details>'+h.slice(k)}
  return h}
-function draw(){if(D&&V.s==='room'){aiFab();setH($('app'),vRoom());$('fab').style.display='none';chatStop();return}drawB()}
+function draw(){if(D&&V.s==='room'){aiFab();setH($('app'),vRoomVit());$('fab').style.display='none';chatStop();return}drawB()}
+
+/* ---------- الوزن والضغط والسكر ---------- */
+function vitIn(){return '<div class="card" style="margin-top:12px"><b>القياسات (اختياري)</b><div class="grid3" style="margin-top:8px"><label class="f">الوزن (كجم)<input inputmode="decimal" value="'+esc(NB.wt||'')+'" oninput="NB.wt=this.value" placeholder="—"></label><label class="f">الضغط<input inputmode="numeric" dir="ltr" value="'+esc(NB.bp||'')+'" oninput="NB.bp=this.value" placeholder="120/80"></label><label class="f">السكر<input inputmode="numeric" value="'+esc(NB.sug||'')+'" oninput="NB.sug=this.value" placeholder="—"></label></div></div>'}
+function vitTags(b){var t=[];if(b.vwt)t.push('وزن '+b.vwt);if(b.vbp)t.push('ضغط '+b.vbp);if(b.vsug)t.push('سكر '+b.vsug);return t.length?'<div class="vit">'+t.map(function(x){return '<span>'+esc(x)+'</span>'}).join('')+'</div>':''}
+function askVitals(code){var b=bookBy(code);openSheet('<h2>الوزن والضغط والسكر</h2><p class="sub">'+esc(b.name)+(b.qno?' · دور #'+b.qno:'')+'</p><div class="grid3"><label class="f">الوزن<input id="vW" inputmode="decimal" value="'+esc(b.vwt||'')+'"></label><label class="f">الضغط<input id="vB" dir="ltr" value="'+esc(b.vbp||'')+'" placeholder="120/80"></label><label class="f">السكر<input id="vS" inputmode="numeric" value="'+esc(b.vsug||'')+'"></label></div><div class="stack" style="margin-top:12px"><button class="btn pri" onclick="run(\'appVitals\',['+jsa(code)+',{wt:$(\'vW\').value,bp:$(\'vB\').value,sug:$(\'vS\').value}],function(){closeSheet();toast(\'اتحفظ ✓\');draw()})">حفظ</button><button class="btn" onclick="closeSheet()">رجوع</button></div>')}
+var vQueueFormV=null;
+function vQueueFormVit(){var h=vQueueFormK();var k=h.indexOf('<div style="margin-top:16px"><h2>كشف ولا إعادة؟</h2>');if(k<0)k=h.indexOf('<div style="margin-top:16px"><h2>نوع الكشف</h2>');return k>0?h.slice(0,k)+vitIn()+h.slice(k):h+vitIn()}
+var vRoomV=null;
+function vRoomVit(){var h=vRoomBase(),br=V.br||curBr(),Q=qList(br,D.today),inn=Q.filter(function(b){return b.status===ST.OUT}).pop();
+ if(inn){h=h.replace('<b class="rname">'+esc(inn.name)+'</b>','<b class="rname">'+esc(inn.name)+'</b>'+vitTags(inn)+'<button class="chip" style="margin-top:6px" onclick="askVitals('+jsa(inn.code)+')">'+(inn.vwt||inn.vbp||inn.vsug?'تعديل القياسات':'+ الوزن والضغط والسكر')+'</button>')}
+ Q.filter(function(b){return b.status===ST.BOOKED}).forEach(function(b){var t=vitTags(b);if(t)h=h.replace('<b>'+esc(b.name)+'</b><span class="sub">'+esc(b.dressDesc),'<b>'+esc(b.name)+'</b>'+t+'<span class="sub">'+esc(b.dressDesc))});
+ return h}
+
+function vQueueForm(){return vQueueFormVit()}
 
 load();
 </script>
