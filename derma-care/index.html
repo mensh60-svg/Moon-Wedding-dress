@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="ديرما كير">
 <script>
 /* بيكلم السيستم على جوجل شيت مباشرة (من غير حسابات جوجل اللي على الموبايل) */
-var SHOP_API='https://script.google.com/macros/s/AKfycbxE55gDOL0qhQbCvAcjEr2Wasf-RFv_oAHsDE6OMebxvuN_YaRzjj2tC2YKLhHoif0N/exec';
+var SHOP_API='https://script.google.com/macros/s/AKfycbx5Uo5xliadL4yWm_vjXugvt8t2MamxVLEI-5Q9DB4IfyMTOmLukdepL1kX0fKGsY2I/exec';
 window.google={script:{get run(){var ok=null,bad=null,px;var o={withSuccessHandler:function(f){ok=f;return px},withFailureHandler:function(f){bad=f;return px}};
 px=new Proxy(o,{get:function(t,k){if(k in t)return t[k];return function(){var args=Array.prototype.slice.call(arguments);
 var tries=0;(function go(){fetch(SHOP_API,{method:'POST',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:k,args:args})})
