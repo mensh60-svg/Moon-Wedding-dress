@@ -107,6 +107,7 @@ button.card:hover{border-color:var(--gold2)}
 .qbig{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;background:var(--blubg);color:var(--blu);flex-shrink:0}.qbig.in{background:var(--orgbg);color:var(--org)}.qbig.ok{background:var(--grnbg);color:var(--grn)}
 .vit{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;justify-content:center}.vit span{font-size:12px;padding:2px 8px;border-radius:8px;background:var(--blubg);color:var(--blu);font-weight:700}.card.row .vit{justify-content:flex-start}
 .qnext{border:2px solid var(--org)!important;background:linear-gradient(135deg,var(--orgbg),var(--surface))!important;box-shadow:0 6px 18px rgba(138,74,18,.18)}.qin{border:1.5px solid var(--gold2)!important;background:var(--soft)!important}.qdone{opacity:.6}.qlabel{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--org);margin:4px 4px -4px}
+.bpx{display:flex;align-items:center;gap:8px;max-width:260px}.bpx input{flex:1;min-width:0;text-align:center;font-size:18px}.bpx b{color:var(--mute);font-size:18px}
 .room{margin-top:12px;padding:18px;border-radius:20px;background:linear-gradient(160deg,var(--soft),var(--ac2));border:1.5px solid var(--gold2);display:flex;flex-direction:column;align-items:center;text-align:center}.rnum{font-size:72px;font-weight:800;line-height:1.1;color:var(--ac)}.rname{font-size:22px}
 .kbtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}.kbtn b{font-size:17px}.kbtn.on{border-color:var(--ac);background:var(--ac2);box-shadow:0 0 0 2px var(--gold2)}
 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -1704,9 +1705,9 @@ function vQueueFormK(){var h=vQueueFormBase(),K=D.dresses.filter(function(x){ret
 function draw(){if(D&&V.s==='room'){aiFab();setH($('app'),vRoomVit());$('fab').style.display='none';chatStop();return}drawB()}
 
 /* ---------- الوزن والضغط والسكر ---------- */
-function vitIn(){return '<div class="card" style="margin-top:12px"><b>القياسات (اختياري)</b><div class="grid3" style="margin-top:8px"><label class="f">الوزن (كجم)<input inputmode="decimal" value="'+esc(NB.wt||'')+'" oninput="NB.wt=this.value" placeholder="—"></label><label class="f">الضغط<input inputmode="numeric" dir="ltr" value="'+esc(NB.bp||'')+'" oninput="NB.bp=this.value" placeholder="120/80"></label><label class="f">السكر<input inputmode="numeric" value="'+esc(NB.sug||'')+'" oninput="NB.sug=this.value" placeholder="—"></label></div></div>'}
+function vitIn(){return '<div class="card" style="margin-top:12px"><b>القياسات (اختياري)</b><div class="grid2" style="margin-top:8px"><label class="f">الوزن (كجم)<input inputmode="decimal" value="'+esc(NB.wt||'')+'" oninput="NB.wt=this.value" placeholder="—"></label><label class="f">السكر<input inputmode="numeric" value="'+esc(NB.sug||'')+'" oninput="NB.sug=this.value" placeholder="—"></label></div><div style="margin-top:8px">'+bpBox(NB.bp,'NB')+'</div></div>'}
 function vitTags(b){var t=[];if(b.vwt)t.push('وزن '+b.vwt);if(b.vbp)t.push('ضغط '+b.vbp);if(b.vsug)t.push('سكر '+b.vsug);return t.length?'<div class="vit">'+t.map(function(x){return '<span>'+esc(x)+'</span>'}).join('')+'</div>':''}
-function askVitals(code){var b=bookBy(code);openSheet('<h2>الوزن والضغط والسكر</h2><p class="sub">'+esc(b.name)+(b.qno?' · دور #'+b.qno:'')+'</p><div class="grid3"><label class="f">الوزن<input id="vW" inputmode="decimal" value="'+esc(b.vwt||'')+'"></label><label class="f">الضغط<input id="vB" dir="ltr" value="'+esc(b.vbp||'')+'" placeholder="120/80"></label><label class="f">السكر<input id="vS" inputmode="numeric" value="'+esc(b.vsug||'')+'"></label></div><div class="stack" style="margin-top:12px"><button class="btn pri" onclick="run(\'appVitals\',['+jsa(code)+',{wt:$(\'vW\').value,bp:$(\'vB\').value,sug:$(\'vS\').value}],function(){closeSheet();toast(\'اتحفظ ✓\');draw()})">حفظ</button><button class="btn" onclick="closeSheet()">رجوع</button></div>')}
+function askVitals(code){var b=bookBy(code);openSheet('<h2>الوزن والضغط والسكر</h2><p class="sub">'+esc(b.name)+(b.qno?' · دور #'+b.qno:'')+'</p><div class="grid2"><label class="f">الوزن<input id="vW" inputmode="decimal" value="'+esc(b.vwt||'')+'"></label><label class="f">السكر<input id="vS" inputmode="numeric" value="'+esc(b.vsug||'')+'"></label></div><div style="margin-top:8px">'+bpBox(b.vbp,'vB')+'</div><input type="hidden" id="vB" value="'+esc(b.vbp||'')+'"><div class="stack" style="margin-top:12px"><button class="btn pri" onclick="run(\'appVitals\',['+jsa(code)+',{wt:$(\'vW\').value,bp:$(\'vB\').value,sug:$(\'vS\').value}],function(){closeSheet();toast(\'اتحفظ ✓\');draw()})">حفظ</button><button class="btn" onclick="closeSheet()">رجوع</button></div>')}
 var vQueueFormV=null;
 function vQueueFormVit(){var h=vQueueFormK();var k=h.indexOf('<div style="margin-top:16px"><h2>كشف ولا إعادة؟</h2>');if(k<0)k=h.indexOf('<div style="margin-top:16px"><h2>نوع الكشف</h2>');return k>0?h.slice(0,k)+vitIn()+h.slice(k):h+vitIn()}
 var vRoomV=null;
@@ -1716,6 +1717,10 @@ function vRoomVit(){var h=vRoomBase(),br=V.br||curBr(),Q=qList(br,D.today),inn=Q
  return h}
 
 function vQueueForm(){return vQueueFormVit()}
+
+/* الضغط: خانتين أرقام (الموبايل مفيهوش / في كيبورد الأرقام) */
+function bpBox(v,t){var p=String(v||'').split('/');return '<div class="f">الضغط<div class="bpx" dir="ltr" data-t="'+t+'"><input inputmode="numeric" maxlength="3" value="'+esc(p[0]||'')+'" placeholder="120" oninput="bpSet(this)"><b>/</b><input inputmode="numeric" maxlength="3" value="'+esc(p[1]||'')+'" placeholder="80" oninput="bpSet(this)"></div></div>'}
+function bpSet(el){var w=el.parentNode,i=w.querySelectorAll('input'),a=i[0].value.replace(/\D/g,''),c=i[1].value.replace(/\D/g,''),v=a||c?a+'/'+c:'';if(el===i[0]&&a.length>=3)i[1].focus();var t=w.getAttribute('data-t');if(t==='NB'){if(NB)NB.bp=v}else{var h=$(t);if(h)h.value=v}}
 
 load();
 </script>
