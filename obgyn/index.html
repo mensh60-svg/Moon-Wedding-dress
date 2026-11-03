@@ -753,7 +753,7 @@ function aiVoice(){if(!SRC)return toast('المتصفح ده مش بيدعم ا�
  AIREC=r;var m=$('aiMic');if(m)m.classList.add('rec');try{r.start()}catch(e){AIREC=null;if(m)m.classList.remove('rec')}}
 
 /* ===================== الإصدار 10 ===================== */
-var DEVTXT='Moon Atelier System · تصميم وتطوير Ahmed Menshawy · © '+new Date().getFullYear()+' جميع الحقوق محفوظة';
+var DEVTXT='Thiqa · ثقة — تصميم وتطوير أحمد منشاوي · © '+new Date().getFullYear()+' جميع الحقوق محفوظة';
 function devCredit(){return '<p class="dev">'+esc(DEVTXT)+'</p>'}
 // فتح الخدمة على طول من الباركود (?d=DR-0001)
 function deepLink(){try{var u=new URL(location.href),c=u.searchParams.get('d');if(!c||!D)return;u.searchParams.delete('d');history.replaceState(null,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams:'')+u.hash);var v=c.trim().toUpperCase(),d=dressBy(v)||dressBy('DR-'+v.replace(/^DR-?/,'').padStart(4,'0'));if(d)go('dress',{c:d.code});else toast('الكود '+c+' مش متسجل')}catch(e){}}

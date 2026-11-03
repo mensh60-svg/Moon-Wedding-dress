@@ -98,6 +98,8 @@ details.help{margin-top:8px}details.help summary{cursor:pointer;color:var(--ac);
 .sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
 .sw input{width:22px;height:22px}
 @media (min-width:640px){.grid4m{grid-template-columns:repeat(4,1fr)!important}}
+
+.dev{text-align:center;font-size:12px;color:var(--mute);margin:26px 8px 6px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -184,10 +186,13 @@ function hdr(title,sub,back,extra){return '<div class="top">'+(back?'<button cla
 function brChips(fn){if(D.me.branch||D.branches.length<2)return '';return '<div class="chips" style="margin-bottom:10px">'+D.branches.filter(function(b){return b.active}).map(function(b){return '<button class="chip'+(b.id===BR?' on':'')+'" onclick="BR='+jsa(b.id)+';lsSet(\'gymBranch\',BR);'+(fn||'draw()')+'">'+esc(b.name)+'</button>'}).join('')+'</div>'}
 /* ---------- الإعداد والدخول ---------- */
 function drawSetup(){$('nav').style.display='none';setH($('app'),'<div class="login"><div class="logo">'+ic('dumb',40,'#fff')+'</div><h1>توصيل السيستم</h1><p class="sub">الصق رابط الـ Web app من Apps Script (بيخلص بـ /exec)</p><input id="apiU" class="in" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec"><button class="btn pri w" style="margin-top:12px" onclick="var u=$(\'apiU\').value.trim();if(!/^https:\\/\\/script\\.google\\.com\\/macros\\/s\\/[\\w-]+\\/exec$/.test(u))return toast(\'الرابط مش صحيح\');lsSet(\'gymApi\',u);API=u;draw()">حفظ</button></div>')}
-function drawLogin(){$('nav').style.display='none';setH($('app'),'<div class="login"><div class="logo">'+ic('dumb',40,'#fff')+'</div><h1>نظام الجيم</h1><p class="sub">اكتب الرقم السري بتاعك (6 أرقام)</p><form onsubmit="event.preventDefault();doLogin()"><input id="pin" class="in pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"><button class="btn pri w" style="margin-top:12px">دخول</button></form><p class="note">الرقم السري بيديهولك مدير الجيم. ولو نسيته كلّمه يغيّره.</p></div>');setTimeout(function(){var p=$('pin');if(p)p.focus()},100)}
+function drawLogin(){$('nav').style.display='none';setH($('app'),'<div class="login"><div class="logo">'+ic('dumb',40,'#fff')+'</div><h1>نظام الجيم</h1><p class="sub">اكتب الرقم السري بتاعك (6 أرقام)</p><form onsubmit="event.preventDefault();doLogin()"><input id="pin" class="in pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"><button class="btn pri w" style="margin-top:12px">دخول</button></form><p class="note">الرقم السري بيديهولك مدير الجيم. ولو نسيته كلّمه يغيّره.</p>'+devCredit()+'</div>');setTimeout(function(){var p=$('pin');if(p)p.focus()},100)}
 function doLogin(){var p=$('pin').value.trim();if(!/^\d{6}$/.test(p))return toast('الرقم السري 6 أرقام');run('appLogin',[p],function(r){TOKEN=r.token;lsSet('gymToken',TOKEN);V={s:'home',p:{}};load()})}
 function toggleTheme(){var r=document.documentElement,t=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',t);lsSet('gymTheme',t)}
 (function(){var t=lsGet('gymTheme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+
+var DEVTXT='Thiqa · ثقة — تصميم وتطوير أحمد منشاوي · © '+new Date().getFullYear()+' جميع الحقوق محفوظة';
+function devCredit(){return '<p class="dev">'+esc(DEVTXT)+'</p>'}
 
 /* ---------- الرئيسية ---------- */
 function vHome(){if(!isFront())return vHomeStaff();
@@ -419,6 +424,7 @@ function vMore(){var h=hdr('المزيد',esc(D.me.name)+' · '+esc(D.me.role)+(
  L.push(['guide','heart','إزاي أستخدم التطبيق']);
  h+='<div class="card list">'+L.map(function(x){return '<div class="item" onclick="go(\''+x[0]+'\')"><div class="av">'+ic(x[1])+'</div><div class="x"><b>'+x[2]+'</b></div>'+ic('back',18)+'</div>'}).join('')+'</div>';
  h+='<div class="row" style="margin-top:14px"><button class="btn" style="flex:1" onclick="toggleTheme()">'+ic('moon')+' الوضع الليلي</button><button class="btn red" style="flex:1" onclick="logout()">'+ic('out')+' خروج</button></div>';
+ h+=devCredit();
  return h}
 function vGuide(){var G=[['تسجيل الدخول بالـ QR','كل عضو ليه كارت فيه QR (من ملفه ← «الكارت»، أو بيتبعتله على واتساب). من «دخول» افتح الكاميرا ووَرّيها الكارت. السيستم بيتأكد من الاشتراك والفرع وقسم رجال/ستات ومواعيده، ويسجّل الحضور ويخصم حصة لو الباقة بالحصص. «وضع البوابة» (زرار البرق) بيخلّي تابلت على الباب يسجل لوحده.'],['اشتراك جديد','الأعضاء ← «عضو جديد» ← بعد الحفظ اختار الباقة. لو دفع جزء، اختار عدد الأقساط وكل كام يوم والسيستم بيعمل جدول الأقساط. الخصم للاستقبال لحد النسبة اللي المدير محددها.'],['التجديد','من الاشتراك ← «تجديد». لو الاشتراك الحالي لسه ساري، الجديد بيبدأ بعد آخر يوم فيه.'],['التجميد','من الاشتراك ← «تجميد» بعدد أيام. نهاية الاشتراك بتتأخر بنفس العدد، والعضو مايقدرش يدخل وهو متجمد. «فك التجميد» بيرجّع الأيام اللي ماتستخدمتش.'],['الكلاسات','المدير بيعمل جدول أسبوعي لكل فرع. الحجز من الاستقبال أو من كارت العضو على موبايله. لو العضو مالوش اشتراك كلاسات بيدفع حصة منفردة. المدرب بيعلّم مين حضر.'],['البرايفت والعلاج الطبيعي','باقة برايفت أو علاج بعدد جلسات، ومربوطة بمدرب أو أخصائي. هو بيسجل كل جلسة من موبايله، وعمولته بتتحسب لوحدها.'],['الكاشير','المكملات والكافتيريا ليها مخزن لكل فرع. البيع بيخصم من المخزن ويتسجل في التحصيل.'],['الحسابات','لكل فرع: التحصيل، المصروفات، الإيراد المكتسب، صافي الربح، الأقساط المتأخرة، ونسبة التجديد. المدير بيشوف كل الفروع ومقارنة بينها.']];
  return hdr('إزاي أستخدم التطبيق','',"go('more')")+G.map(function(g){return '<details class="card" style="margin-top:8px"><summary style="font-weight:800;cursor:pointer">'+esc(g[0])+'</summary><p class="sub" style="line-height:1.9">'+esc(g[1])+'</p></details>'}).join('')}
